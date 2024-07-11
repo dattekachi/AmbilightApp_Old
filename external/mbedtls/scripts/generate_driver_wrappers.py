@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
-"""Generate library/psa_crypto_driver_wrappers.c
+"""Generate library/psa_crypto_driver_wrappers.h
+            library/psa_crypto_driver_wrappers_no_static.c
 
    This module is invoked by the build scripts to auto generate the
-   psa_crypto_driver_wrappers.c based on template files in
-   script/data_files/driver_templates/.
+   psa_crypto_driver_wrappers.h and psa_crypto_driver_wrappers_no_static
+   based on template files in script/data_files/driver_templates/.
 """
 # Copyright The Mbed TLS Contributors
-# SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
 
 import sys
 import os
@@ -59,19 +48,19 @@ def render(template_path: str, driver_jsoncontext: list) -> str:
 
     return template.render(drivers=driver_jsoncontext)
 
-
 def generate_driver_wrapper_file(template_dir: str,
                                  output_dir: str,
+                                 template_file_name: str,
                                  driver_jsoncontext: list) -> None:
     """
     Generate the file psa_crypto_driver_wrapper.c.
     """
     driver_wrapper_template_filename = \
-        os.path.join(template_dir, "psa_crypto_driver_wrappers.c.jinja")
+        os.path.join(template_dir, template_file_name)
 
     result = render(driver_wrapper_template_filename, driver_jsoncontext)
 
-    with open(file=os.path.join(output_dir, "psa_crypto_driver_wrappers.c"),
+    with open(file=os.path.join(output_dir, os.path.splitext(template_file_name)[0]),
               mode='w',
               encoding='UTF-8') as out_file:
         out_file.write(result)
@@ -167,6 +156,9 @@ def trace_exception(e: Exception, file=sys.stderr) -> None:
     ), file)
 
 
+TEMPLATE_FILENAMES = ["psa_crypto_driver_wrappers.h.jinja",
+                      "psa_crypto_driver_wrappers_no_static.c.jinja"]
+
 def main() -> int:
     """
     Main with command line arguments.
@@ -207,7 +199,9 @@ def main() -> int:
     except DriverReaderException as e:
         trace_exception(e)
         return 1
-    generate_driver_wrapper_file(template_directory, output_directory, merged_driver_json)
+    for template_filename in TEMPLATE_FILENAMES:
+        generate_driver_wrapper_file(template_directory, output_directory,
+                                     template_filename, merged_driver_json)
     return 0
 
 

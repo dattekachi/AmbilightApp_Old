@@ -3,19 +3,7 @@
  */
 /*
  *  Copyright The Mbed TLS Contributors
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
 #ifndef PSA_EXERCISE_KEY_H
@@ -34,7 +22,7 @@
  */
 #if defined(PSA_WANT_ALG_MD5)
 #define KNOWN_SUPPORTED_HASH_ALG PSA_ALG_MD5
-/* MBEDTLS_RIPEMD160_C omitted. This is necessary for the sake of
+/* PSA_WANT_ALG_RIPEMD160 omitted. This is necessary for the sake of
  * exercise_signature_key() because Mbed TLS doesn't support RIPEMD160
  * in RSA PKCS#1v1.5 signatures. A RIPEMD160-only configuration would be
  * implausible anyway. */
@@ -119,6 +107,7 @@
  * The inputs \p input1 and \p input2 are, in order:
  * - HKDF: salt, info.
  * - TKS 1.2 PRF, TLS 1.2 PSK-to-MS: seed, label.
+ * - PBKDF2: input cost, salt.
  *
  * \param operation         The operation object to use.
  *                          It must be in the initialized state.

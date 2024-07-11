@@ -2,25 +2,14 @@
  *  MbedTLS SSL context deserializer from base64 code
  *
  *  Copyright The Mbed TLS Contributors
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
 #define MBEDTLS_ALLOW_PRIVATE_ACCESS
 
 #include "mbedtls/build_info.h"
 #include "mbedtls/debug.h"
+#include "mbedtls/platform.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,12 +113,12 @@ const char buf_ln_err[] = "Buffer does not have enough data to complete the pars
 /*
  * Basic printing functions
  */
-void print_version()
+void print_version(void)
 {
     printf("%s v%d.%d\n", PROG_NAME, VER_MAJOR, VER_MINOR);
 }
 
-void print_usage()
+void print_usage(void)
 {
     print_version();
     printf("\nThis program is used to deserialize an Mbed TLS SSL session from the base64 code provided\n"
@@ -178,7 +167,7 @@ void printf_err(const char *str, ...)
 /*
  * Exit from the program in case of error
  */
-void error_exit()
+void error_exit(void)
 {
     if (NULL != b64_file) {
         fclose(b64_file);
@@ -933,6 +922,15 @@ int main(int argc, char *argv[])
     size_t ssl_max_len = SSL_INIT_LEN;
     size_t ssl_len = 0;
 
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+    psa_status_t status = psa_crypto_init();
+    if (status != PSA_SUCCESS) {
+        mbedtls_fprintf(stderr, "Failed to initialize PSA Crypto implementation: %d\n",
+                        (int) status);
+        return MBEDTLS_ERR_SSL_HW_ACCEL_FAILED;
+    }
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
+
     /* The 'b64_file' is opened when parsing arguments to check that the
      * file name is correct */
     parse_arguments(argc, argv);
@@ -1000,6 +998,10 @@ int main(int argc, char *argv[])
     } else {
         printf("Finished. No valid base64 code found\n");
     }
+
+#if defined(MBEDTLS_USE_PSA_CRYPTO)
+    mbedtls_psa_crypto_free();
+#endif /* MBEDTLS_USE_PSA_CRYPTO */
 
     return 0;
 }

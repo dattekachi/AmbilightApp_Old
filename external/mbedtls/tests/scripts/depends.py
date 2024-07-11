@@ -1,21 +1,7 @@
 #!/usr/bin/env python3
 
-# Copyright (c) 2022, Arm Limited, All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# This file is part of Mbed TLS (https://tls.mbed.org)
+# Copyright The Mbed TLS Contributors
+# SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
 
 """
 Test Mbed TLS with a subset of algorithms.
@@ -161,6 +147,7 @@ derived."""
     log_command(['config.py', 'full'])
     conf.adapt(config.full_adapter)
     set_config_option_value(conf, 'MBEDTLS_TEST_HOOKS', colors, False)
+    set_config_option_value(conf, 'MBEDTLS_PSA_CRYPTO_CONFIG', colors, False)
     if options.unset_use_psa:
         set_config_option_value(conf, 'MBEDTLS_USE_PSA_CRYPTO', colors, False)
 
@@ -237,6 +224,8 @@ REVERSE_DEPENDENCIES = {
                       'MBEDTLS_ECDH_C',
                       'MBEDTLS_ECJPAKE_C',
                       'MBEDTLS_ECP_RESTARTABLE',
+                      'MBEDTLS_PK_PARSE_EC_EXTENDED',
+                      'MBEDTLS_PK_PARSE_EC_COMPRESSED',
                       'MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED',
                       'MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED',
                       'MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED',
@@ -277,7 +266,7 @@ REVERSE_DEPENDENCIES = {
 # if a given define is the only one enabled from an exclusive group.
 EXCLUSIVE_GROUPS = {
     'MBEDTLS_SHA512_C': ['-MBEDTLS_SSL_COOKIE_C',
-                         '-MBEDTLS_SSL_PROTO_TLS1_3'],
+                         '-MBEDTLS_SSL_TLS_C'],
     'MBEDTLS_ECP_DP_CURVE448_ENABLED': ['-MBEDTLS_ECDSA_C',
                                         '-MBEDTLS_ECDSA_DETERMINISTIC',
                                         '-MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED',
@@ -426,7 +415,8 @@ class DomainData:
             'hashes': DualDomain(hash_symbols, build_and_test,
                                  exclude=r'MBEDTLS_(MD|RIPEMD|SHA1_)' \
                                           '|MBEDTLS_SHA224_' \
-                                          '|MBEDTLS_SHA384_'),
+                                          '|MBEDTLS_SHA384_' \
+                                          '|MBEDTLS_SHA3_'),
             # Key exchange types.
             'kex': ExclusiveDomain(key_exchange_symbols, build_and_test),
             'pkalgs': ComplementaryDomain(['MBEDTLS_ECDSA_C',
