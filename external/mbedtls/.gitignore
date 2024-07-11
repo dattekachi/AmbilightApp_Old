@@ -1,10 +1,5 @@
 # Random seed file created by test scripts and sample programs
 seedfile
-# MBEDTLS_PSA_INJECT_ENTROPY seed file created by the test framework
-00000000ffffff52.psa_its
-# Log files created by all.sh to reduce the logs in case a component runs
-# successfully
-quiet-make.*
 
 # CMake build artifacts:
 CMakeCache.txt
@@ -32,9 +27,6 @@ massif-*
 .cproject
 .project
 /.settings
-
-# Unix-like build artifacts:
-*.o
 
 # MSVC build artifacts:
 *.exe
@@ -65,11 +57,3 @@ massif-*
 /TAGS
 /cscope*.out
 /tags
-
-# clangd compilation database
-compile_commands.json
-# clangd index files
-/.cache/clangd/index/
-
-# VScode folder to store local debug files and configurations
-.vscode

@@ -4,7 +4,6 @@ set(executables
     hmac_demo
     key_ladder_demo
     psa_constant_names
-    psa_hash
 )
 
 if(GEN_FILES)
@@ -19,8 +18,8 @@ if(GEN_FILES)
             ${CMAKE_CURRENT_SOURCE_DIR}/../..
         DEPENDS
             ${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/generate_psa_constants.py
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../tf-psa-crypto/include/psa/crypto_values.h
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../tf-psa-crypto/include/psa/crypto_extra.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../include/psa/crypto_values.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../include/psa/crypto_extra.h
     )
 else()
     link_to_source(psa_constant_names_generated.c)
@@ -28,7 +27,7 @@ endif()
 
 foreach(exe IN LISTS executables)
     add_executable(${exe} ${exe}.c $<TARGET_OBJECTS:mbedtls_test>)
-    target_link_libraries(${exe} ${mbedcrypto_target} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${exe} ${mbedcrypto_target})
     target_include_directories(${exe} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../tests/include)
 endforeach()
 

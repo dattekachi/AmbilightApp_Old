@@ -14,7 +14,19 @@ EOF
 fi
 
 # Copyright The Mbed TLS Contributors
-# SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 set -e
 
@@ -29,39 +41,35 @@ print_cpp () {
  *  can be included and built with a C++ compiler.
  *
  *  Copyright The Mbed TLS Contributors
- *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+ *  SPDX-License-Identifier: Apache-2.0
  *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *  not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 #include "mbedtls/build_info.h"
 
 EOF
 
-    for header in include/mbedtls/*.h; do
+    for header in include/mbedtls/*.h include/psa/*.h; do
         case ${header#include/} in
             mbedtls/mbedtls_config.h) :;; # not meant for direct inclusion
-            mbedtls/config_*.h) :;; # not meant for direct inclusion
-            *) echo "#include \"${header#include/}\"";;
-        esac
-    done
-
-    for header in tf-psa-crypto/drivers/builtin/include/mbedtls/*.h; do
-        case ${header#tf-psa-crypto/drivers/builtin/include/} in
-            mbedtls/config_*.h) :;; # not meant for direct inclusion
-            *) echo "#include \"${header#tf-psa-crypto/drivers/builtin/include/}\"";;
-        esac
-    done
-
-    for header in tf-psa-crypto/include/psa/*.h; do
-        case ${header#tf-psa-crypto/include/} in
             psa/crypto_config.h) :;; # not meant for direct inclusion
-            psa/crypto_ajdust_config*.h) :;; # not meant for direct inclusion
             # Some of the psa/crypto_*.h headers are not meant to be included
             # directly. They do have include guards that make them no-ops if
             # psa/crypto.h has been included before. Since psa/crypto.h comes
             # before psa/crypto_*.h in the wildcard enumeration, we don't need
             # to skip those headers.
-            *) echo "#include \"${header#tf-psa-crypto/include/}\"";;
+            *) echo "#include \"${header#include/}\"";;
         esac
     done
 

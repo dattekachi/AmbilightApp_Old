@@ -3,7 +3,19 @@
 # test-ref-configs.pl
 #
 # Copyright The Mbed TLS Contributors
-# SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 # Purpose
 #
@@ -17,24 +29,29 @@ use strict;
 
 my %configs = (
     'config-ccm-psk-tls1_2.h' => {
-        'compat' => '-m tls12 -f \'^TLS_PSK_WITH_AES_..._CCM_8\'',
+        'compat' => '-m tls12 -f \'^TLS-PSK-WITH-AES-...-CCM-8\'',
+        'test_again_with_use_psa' => 1
     },
     'config-ccm-psk-dtls1_2.h' => {
-        'compat' => '-m dtls12 -f \'^TLS_PSK_WITH_AES_..._CCM_8\'',
+        'compat' => '-m dtls12 -f \'^TLS-PSK-WITH-AES-...-CCM-8\'',
         'opt' => ' ',
         'opt_needs_debug' => 1,
+        'test_again_with_use_psa' => 1
+    },
+    'config-no-entropy.h' => {
     },
     'config-suite-b.h' => {
-        'compat' => "-m tls12 -f 'ECDHE_ECDSA.*AES.*GCM' -p mbedTLS",
+        'compat' => "-m tls12 -f 'ECDHE-ECDSA.*AES.*GCM' -p mbedTLS",
+        'test_again_with_use_psa' => 1,
         'opt' => ' ',
         'opt_needs_debug' => 1,
     },
     'config-symmetric-only.h' => {
-    },
-    'config-tfm.h' => {
+        'test_again_with_use_psa' => 0, # Uses PSA by default, no need to test it twice
     },
     'config-thread.h' => {
         'opt' => '-f ECJPAKE.*nolog',
+        'test_again_with_use_psa' => 1,
     },
 );
 
@@ -140,10 +157,7 @@ sub perform_test {
 }
 
 foreach my $conf ( @configs_to_test ) {
-    system("grep '//#define MBEDTLS_USE_PSA_CRYPTO' configs/$conf > /dev/null");
-    die "grep ... configs/$conf: $!" if $? != 0 && $? != 0x100;
-    my $test_with_psa = $? == 0;
-
+    my $test_with_psa = $configs{$conf}{'test_again_with_use_psa'};
     if ( $test_with_psa )
     {
         perform_test( $conf, $configs{$conf}, $test_with_psa );

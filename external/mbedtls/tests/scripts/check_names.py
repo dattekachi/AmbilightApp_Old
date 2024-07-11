@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 #
 # Copyright The Mbed TLS Contributors
-# SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """
 This script confirms that the naming of all symbols and identifiers in Mbed TLS
@@ -45,7 +57,7 @@ import subprocess
 import logging
 
 import scripts_path # pylint: disable=unused-import
-from mbedtls_framework import build_tree
+from mbedtls_dev import build_tree
 
 
 # Naming patterns to check against. These are defined outside the NameCheck
@@ -238,63 +250,41 @@ class CodeParser():
         all_macros["public"] = self.parse_macros([
             "include/mbedtls/*.h",
             "include/psa/*.h",
-            "tf-psa-crypto/include/psa/*.h",
-            "tf-psa-crypto/drivers/builtin/include/mbedtls/*.h",
-            "tf-psa-crypto/drivers/everest/include/everest/everest.h",
-            "tf-psa-crypto/drivers/everest/include/everest/x25519.h"
+            "3rdparty/everest/include/everest/everest.h",
+            "3rdparty/everest/include/everest/x25519.h"
         ])
         all_macros["internal"] = self.parse_macros([
             "library/*.h",
-            "tf-psa-crypto/core/*.h",
-            "tf-psa-crypto/drivers/builtin/src/*.h",
             "tests/include/test/drivers/*.h",
         ])
         all_macros["private"] = self.parse_macros([
             "library/*.c",
-            "tf-psa-crypto/core/*.c",
-            "tf-psa-crypto/drivers/builtin/src/*.c",
         ])
         enum_consts = self.parse_enum_consts([
             "include/mbedtls/*.h",
             "include/psa/*.h",
-            "tf-psa-crypto/include/psa/*.h",
-            "tf-psa-crypto/drivers/builtin/include/mbedtls/*.h",
             "library/*.h",
-            "tf-psa-crypto/core/*.h",
-            "tf-psa-crypto/drivers/builtin/src/*.h",
             "library/*.c",
-            "tf-psa-crypto/core/*.c",
-            "tf-psa-crypto/drivers/builtin/src/*.c",
-            "tf-psa-crypto/drivers/everest/include/everest/everest.h",
-            "tf-psa-crypto/drivers/everest/include/everest/x25519.h"
+            "3rdparty/everest/include/everest/everest.h",
+            "3rdparty/everest/include/everest/x25519.h"
         ])
         identifiers, excluded_identifiers = self.parse_identifiers([
             "include/mbedtls/*.h",
             "include/psa/*.h",
-            "tf-psa-crypto/include/psa/*.h",
-            "tf-psa-crypto/drivers/builtin/include/mbedtls/*.h",
             "library/*.h",
-            "tf-psa-crypto/core/*.h",
-            "tf-psa-crypto/drivers/builtin/src/*.h",
-            "tf-psa-crypto/drivers/everest/include/everest/everest.h",
-            "tf-psa-crypto/drivers/everest/include/everest/x25519.h"
-        ], ["tf-psa-crypto/drivers/p256-m/p256-m/p256-m.h"])
+            "3rdparty/everest/include/everest/everest.h",
+            "3rdparty/everest/include/everest/x25519.h"
+        ], ["3rdparty/p256-m/p256-m/p256-m.h"])
         mbed_psa_words = self.parse_mbed_psa_words([
             "include/mbedtls/*.h",
             "include/psa/*.h",
-            "tf-psa-crypto/include/psa/*.h",
-            "tf-psa-crypto/drivers/builtin/include/mbedtls/*.h",
             "library/*.h",
-            "tf-psa-crypto/core/*.h",
-            "tf-psa-crypto/drivers/builtin/src/*.h",
-            "tf-psa-crypto/drivers/everest/include/everest/everest.h",
-            "tf-psa-crypto/drivers/everest/include/everest/x25519.h",
+            "3rdparty/everest/include/everest/everest.h",
+            "3rdparty/everest/include/everest/x25519.h",
             "library/*.c",
-            "tf-psa-crypto/core/*.c",
-            "tf-psa-crypto/drivers/builtin/src/*.c",
-            "tf-psa-crypto/drivers/everest/library/everest.c",
-            "tf-psa-crypto/drivers/everest/library/x25519.c"
-        ], ["tf-psa-crypto/core/psa_crypto_driver_wrappers.h"])
+            "3rdparty/everest/library/everest.c",
+            "3rdparty/everest/library/x25519.c"
+        ], ["library/psa_crypto_driver_wrappers.c"])
         symbols = self.parse_symbols()
 
         # Remove identifier macros like mbedtls_printf or mbedtls_calloc
@@ -951,7 +941,7 @@ def main():
             "This script confirms that the naming of all symbols and identifiers "
             "in Mbed TLS are consistent with the house style and are also "
             "self-consistent.\n\n"
-            "Expected to be run from the Mbed TLS root directory.")
+            "Expected to be run from the MbedTLS root directory.")
     )
     parser.add_argument(
         "-v", "--verbose",
