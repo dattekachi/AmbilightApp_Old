@@ -84,7 +84,6 @@ SysTray::~SysTray()
 	delete _runmusicledAction;
 	delete _restartappAction;
 	delete _autorunAction;
-
 	delete _trayIcon;
 	delete _trayIconEfxMenu;
 	delete _trayIconMenu;
@@ -136,9 +135,11 @@ void SysTray::createTrayIcon()
 	_settingsAction->setIcon(QPixmap(":/settings.svg"));
 	connect(_settingsAction, &QAction::triggered, this, &SysTray::settings);
 
+#ifdef _WIN32
 	_openscreencapAction = new QAction(tr("&Trình quét màu"));
 	_openscreencapAction->setIcon(QPixmap(":/settings.svg"));
 	connect(_openscreencapAction, &QAction::triggered, this, &SysTray::openScreenCap);
+#endif
 
 	_clearAction = new QAction(tr("&Theo màu màn hình"));
 	_clearAction->setIcon(QPixmap(":/clear.svg"));
@@ -188,8 +189,10 @@ void SysTray::createTrayIcon()
 	_trayIconMenu->addAction(_clearAction);
 	_trayIconMenu->addAction(_runmusicledAction);
 	_trayIconMenu->addSeparator();
+#ifdef _WIN32
 	_trayIconMenu->addAction(_openscreencapAction);
 	_trayIconMenu->addSeparator();
+#endif
 	_trayIconMenu->addAction(_restartappAction);
 	_trayIconMenu->addAction(_quitAction);
 }
@@ -245,6 +248,8 @@ void SysTray::showColorDialog()
 	else
 	{
 		_colorDlg->show();
+		_colorDlg->raise();
+		_colorDlg->activateWindow();
 	}
 }
 
@@ -281,12 +286,6 @@ void SysTray::settings()
 #endif
 }
 
-void SysTray::openScreenCap()
-{
-	QProcess::execute("taskkill", QStringList() << "/F" << "/IM" << "HyperionScreenCap.exe");
-	QProcess::startDetached("C:\\Program Files\\Ambilight App\\Hyperion Screen Capture\\HyperionScreenCap.exe", QStringList() << "-show");
-}
-
 void SysTray::setEffect(QString effect)
 {
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
@@ -299,6 +298,12 @@ void SysTray::clearEfxColor()
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	if (instanceManager)
 		instanceManager->clearInstancePriority(_selectedInstance, 1);
+}
+
+void SysTray::openScreenCap()
+{
+	QProcess::execute("taskkill", QStringList() << "/F" << "/IM" << "HyperionScreenCap.exe");
+	QProcess::startDetached("C:\\Program Files\\Ambilight App\\Hyperion Screen Capture\\HyperionScreenCap.exe", QStringList() << "-show");
 }
 
 void SysTray::runMusicLed()
@@ -314,8 +319,10 @@ void SysTray::runMusicLed()
 
 void SysTray::restartApp()
 {
+#ifdef _WIN32
 	QProcess::execute("taskkill", QStringList() << "/F" << "/IM" << "HyperionScreenCap.exe");
 	QProcess::startDetached("C:\\Program Files\\Ambilight App\\Hyperion Screen Capture\\HyperionScreenCap.exe");
+#endif
 
 	auto arguments = QCoreApplication::arguments();
 	if (!arguments.contains("--wait-ambilightapp"))
@@ -327,7 +334,9 @@ void SysTray::restartApp()
 
 void SysTray::menuQuit()
 {
+#ifdef _WIN32
 	QProcess::execute("taskkill", QStringList() << "/F" << "/IM" << "HyperionScreenCap.exe");
+#endif
 	QApplication::quit();
 }
 
