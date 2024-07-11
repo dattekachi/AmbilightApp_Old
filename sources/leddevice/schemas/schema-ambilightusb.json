@@ -1,0 +1,53 @@
+{
+	"type":"object",
+	"required":true,
+	"properties":{
+		"output": {
+			"type": "string",
+			"title":"edt_dev_spec_outputPath_title",
+			"default":"auto",
+			"propertyOrder" : 1
+		},
+		"rate" :
+		{
+			"type" : "integer",
+			"title" : "edt_dev_spec_baudrate_title",
+			"enum" : [153600, 1000000, 2000000],
+			"default" : 1000000,
+			"options" : {
+				"enum_titles" : ["153600", "1000000", "2000000"]
+			},
+			"propertyOrder" : 2
+		},
+		"espHandshake" :
+		{
+			"type" : "boolean",
+			"format": "checkbox",
+			"title" : "edt_serial_espHandshake",		
+			"default" : true,
+			"required" : true,
+			"propertyOrder" : 3
+		},
+		"delayAfterConnect": {
+			"type": "integer",
+			"title":"edt_dev_spec_delayAfterConnect_title",
+			"default": 0,
+			"append" : "ms",
+			"access" : "expert",
+			"propertyOrder" : 4
+		},
+		"maxRetry":
+		{
+			"type" : "integer",
+			"format" : "stepper",			
+			"step"   : 1,			
+			"title" : "edt_dev_max_retry",
+			"minimum" : 1,
+			"maximum" : 180,
+			"default" : 180,
+			"required" : true,
+			"propertyOrder" : 5
+		}
+	},
+	"additionalProperties": true
+}

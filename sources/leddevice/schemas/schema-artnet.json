@@ -1,0 +1,39 @@
+{
+	"type":"object",
+	"required":true,
+	"properties":{
+		"host" : {
+			"type": "string",
+			"title":"edt_dev_spec_targetIp_title",
+			"propertyOrder" : 1
+		},
+		"port" : {
+			"type": "integer",
+			"title":"edt_dev_spec_port_title",
+			"default": 6454,
+			"minimum": 0,
+			"maximum": 65535,
+			"propertyOrder" : 2
+		},
+		"universe": {
+			"type": "integer",
+			"title":"edt_dev_spec_universe_title",
+			"default": 1,
+			"propertyOrder" : 3
+		},
+		"channelsPerFixture": {
+			"type": "integer",
+			"title":"edt_dev_spec_chanperfixture_title",
+			"default": 3,
+			"propertyOrder" : 4
+		},
+		"disableSplitting": {
+			"type": "boolean",
+			"format": "checkbox",
+			"title":"edt_prevent_pixel_data_splitting_across_universes",
+			"default" : false,
+			"propertyOrder" : 5	
+		}		
+	},
+	"additionalProperties": true
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=AmbilightApp ambient light systemd service  for user %i
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ambilightapp
+WorkingDirectory=/usr/share/ambilightapp/bin
+User=%i
+TimeoutStopSec=5
+KillMode=mixed
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

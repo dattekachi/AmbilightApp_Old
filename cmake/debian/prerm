@@ -1,0 +1,53 @@
+#!/bin/sh
+
+echo "Preparing to uninstall AmbilightAPP"
+
+# search for users in system, returns first entry
+FOUND_USR=`who | grep -o -m1 '^\w*\b'` || "root"
+
+# stop running daemon before we delete it
+AMBILIGHTAPP_RUNNING=false
+pgrep ambilightapp > /dev/null 2>&1 && AMBILIGHTAPP_RUNNING=true
+
+if grep -m1 systemd /proc/1/comm > /dev/null
+then
+	echo "Stopping AmbilightAPP daemon: systemd"
+	# systemd
+	$AMBILIGHTAPP_RUNNING && systemctl stop ambilightapp"@${FOUND_USR}" 2> /dev/null
+	# disable user specific symlink
+	echo "Disabling service and removing entry"
+	systemctl -q disable ambilightapp"@${FOUND_USR}"
+	
+	rm -v /etc/systemd/system/ambilightapp@.service 2>/dev/null	
+
+elif [ -e /sbin/initctl ]
+then
+	echo "Stopping AmbilightAPP daemon: upstart"
+	# upstart
+	$AMBILIGHTAPP_RUNNING && initctl stop ambilightapp
+	echo "Removing upstart service"
+	rm -v /etc/init/ambilightapp* 2>/dev/null
+	initctl reload-configuration
+
+else
+	echo "Stopping AmbilightAPP daemon: sysV"
+	# sysV
+	$AMBILIGHTAPP_RUNNING && service ambilightapp stop 2>/dev/null
+	echo "Removing sysV service"
+	update-rc.d -f ambilightapp remove
+	rm /etc/init.d/ambilightapp* 2>/dev/null
+fi
+
+# In case we don't use a service kill all instances
+killall ambilightapp 2> /dev/null
+
+# delete desktop icons; desktop-file-edit is a workaround to hide the entry and delete it afterwards manual.
+# TODO Better way for deletion and keep the desktop in sync without logout/login or desktop dependend cmds?
+echo "Deleting AmbilightAPP desktop icons"
+desktop-file-edit --set-key=NoDisplay --set-value=true /usr/share/applications/ambilightapp.desktop 2>/dev/null
+rm -v /usr/share/applications/ambilightapp* 2>/dev/null
+rm -rv /usr/share/pixmaps/ambilightapp 2>/dev/null
+
+echo "Removing LUT table"
+rm -f -v /usr/share/ambilightapp/lut/lut_lin_tables.3d
+exit 0

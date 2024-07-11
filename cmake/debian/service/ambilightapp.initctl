@@ -1,0 +1,11 @@
+## Ambilightapp daemon initctl script
+
+description "ambilightapp"
+author "poljvd & tvdzwan"
+
+start on (runlevel [2345])
+stop on (runlevel [!2345])
+
+respawn
+
+exec /usr/bin/ambilightapp

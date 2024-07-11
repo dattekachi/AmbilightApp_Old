@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/">
+		${AMBILIGHTAPP_WEBCONFIG_RES}
+	</qresource>
+</RCC>

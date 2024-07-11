@@ -1,0 +1,230 @@
+name: Ambilight App CI Build
+
+on:
+  push:
+  pull_request:
+
+env:
+    USE_CACHE: "1"
+    RESET_CACHE: "0"
+    USE_CODEQL: "1"
+    BUILD_ARCHIVES: ${{ startsWith(github.event.ref, 'refs/tags') && 1 || 0 }}
+
+jobs:
+
+######################
+######## macOS #######
+######################
+
+  macOS:
+    name: ${{ matrix.JOB_NAME }}
+    runs-on: ${{ matrix.JOB_RUNNER }}
+    strategy:
+      matrix:
+        include:        
+          - JOB_RUNNER: macos-14
+            JOB_NAME: macOS 14 (arm64/M1/M2)
+            QT_VERSION: 6
+            NICE_NAME: arm64_M1_M2
+          - JOB_RUNNER: macos-13
+            JOB_NAME: macOS 13 (x64)
+            QT_VERSION: 5
+            NICE_NAME: x64
+    steps:
+      # Checkout
+      - uses: actions/checkout@v4
+        with:
+            submodules: true
+
+      # Generate cache id
+      - name: Prepare ccache timestamp
+        if: env.USE_CACHE == '1'
+        id: ccache_cache_timestamp
+        shell: cmake -P {0}
+        run: |
+            string(TIMESTAMP current_date "%Y-%m-%d-%H-%M-%S" UTC)
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
+
+      # Download cache
+      - name: ccache cache files
+        if: ( env.USE_CACHE == '1' )
+        uses: actions/cache@v4
+        with:
+            path: .ccache
+            key: macOS-ccache-${{ matrix.NICE_NAME }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+            restore-keys: macOS-ccache-${{ matrix.NICE_NAME }}
+
+      # Install deps
+      - name: Install deps
+        shell: bash
+        run: brew install qt@${{ matrix.QT_VERSION }} xz ccache zstd webp jpeg-turbo || true
+        
+      # Set env
+      - name: Set QT5 env
+        if: ( matrix.QT_VERSION == 5 )
+        shell: bash
+        run: |
+            export Qt5_DIR=`brew --prefix qt@5`;
+            echo "Qt5_DIR=$Qt5_DIR" >> $GITHUB_ENV
+      
+      - name: Grant execute permission to script
+        run: chmod +x ./.ci/ci_build.sh
+
+        # Build process
+      - name: Build packages
+        env:
+            PLATFORM: osx
+            USE_CCACHE: ${{ env.USE_CACHE }}
+            RESET_CACHE: ${{ env.RESET_CACHE }}
+        shell: bash
+        run: ./.ci/ci_build.sh
+
+      # Upload artifacts (only on tagged commit)
+      - name: Upload artifacts
+        if: startsWith(github.event.ref, 'refs/tags') && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+            name: release-artifact-${{ matrix.JOB_RUNNER }}      
+            path: build/Ambilight*.dmg
+
+      # Upload artifacts from commit
+      - name: Upload artifacts from commit
+        if: (startsWith(github.event.ref, 'refs/tags') != true) && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+            name: Apple_macOS_${{ matrix.NICE_NAME }}_DMG_installer
+            path: build/Ambilight*.dmg
+
+######################
+###### Windows #######
+######################
+
+  windows:
+    name: Windows
+    runs-on: windows-2022
+    env:
+      VCINSTALLDIR: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC'
+      QT_VERSION: 6.5.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Cache Qt
+        uses: actions/cache@v4
+        id: cache-qt-windows
+        with:
+          path: ${{ runner.workspace }}/Qt
+          key: ${{ runner.os }}-Qt.${{ env.QT_VERSION }}
+     
+      - name: Install QT
+        if: steps.cache-qt-windows.outputs.cache-hit != 'true'
+        run: |          
+          pip install aqtinstall
+          aqt install-qt -O ${{ runner.workspace }}/Qt windows desktop ${{ env.QT_VERSION }} win64_msvc2019_64 -m qtserialport
+
+      - name: Set up x64 build architecture environment
+        shell: cmd
+        run: call "${{env.VCINSTALLDIR}}\Auxiliary\Build\vcvars64.bat"
+          
+      # Build packages
+      - name: Build packages        
+        env:
+          PLATFORM: windows
+          CMAKE_PREFIX_PATH: "${{ runner.workspace }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/lib/cmake/"
+          USE_CCACHE: ${{ env.USE_CACHE }}
+        shell: bash
+        run: |
+          ./.ci/ci_build.sh
+
+      # Upload artifacts (only on tagged commit)
+      - name: Upload artifacts
+        # if: startsWith(github.event.ref, 'refs/tags') && github.event_name != 'pull_request'
+        if: (startsWith(github.event.ref, 'refs/tags') != true) && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows_Artifact_x64
+          path: build/Ambilight*.zip
+          
+      # Upload artifacts from commit
+      # - name: Upload artifacts from commit
+      #   if: (startsWith(github.event.ref, 'refs/tags') != true) && github.event_name != 'pull_request'
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Windows_x64_setup
+      #     path: build/Ambilight*.exe
+
+################################
+####### CodeQL support #########
+################################
+
+  # analyze:
+  #   name: Analyze (CodeQL)
+  #   runs-on: ubuntu-latest
+  #   if: ( true )
+  #   permissions:
+  #     actions: read
+  #     contents: read
+  #     security-events: write
+
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       language: [ 'cpp', 'javascript' ]
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+
+  #     - name: Run composite CodeQL job for '${{matrix.language}}' language
+  #       uses: ./.github/actions/codeql
+  #       with:
+  #         language: ${{matrix.language}}
+
+################################
+###### Publish Releases ########
+################################
+
+  # publish:
+  #   name: Publish Releases
+  #   if: startsWith(github.event.ref, 'refs/tags') && github.event_name != 'pull_request'
+  #   needs: [windows, macOS]
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     # generate environment variables
+  #     - name: Generate environment variables from version and tag
+  #       run: |
+  #         echo "TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+  #         echo "VERSION=$(tr -d '\n' < version)" >> $GITHUB_ENV
+  #         echo "preRelease=false" >> $GITHUB_ENV
+
+  #     # If version contains alpha or beta, mark draft release as pre-release
+  #     - name: Mark release as pre-release
+  #       if: contains(env.VERSION, 'alpha') || contains(env.VERSION, 'beta')
+  #       run: echo "preRelease=true" >> $GITHUB_ENV
+
+  #     # Download artifacts from previous build process
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         path: artifacts
+  #         pattern: release-artifact-*
+  #         merge-multiple: true          
+
+  #     # create draft release and upload artifacts
+  #     - name: Create draft release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: AmbilightApp ${{ env.VERSION }}
+  #         tag_name: ${{ env.TAG }}
+  #         files: "artifacts/**"
+  #         draft: true
+  #         prerelease: ${{ env.preRelease }}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>CFBundleIdentifier</key>
+		<string>com.thesetupstore.ambilightapp</string>
+		<key>CFBundleName</key>
+		<string>AmbilightApp</string>
+		<key>CFBundleExecutable</key>
+		<string>ambilightapp</string>
+		<key>CFBundleIconFile</key>
+		<string>Ambilightapp.icns</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>LSUIElement</key>
+		<true/>
+		<key>NSCameraUsageDescription</key>
+		<string>Ambilight App cần quyền truy cậo vào ghi màn hình để hoạt động chính xác.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Ambilight App cần quyền truy cập vào card âm thanh để hoạt động chính xác. AMBILIGHT APP SẼ CẦN PHẢI ĐƯỢC KHỞI ĐỘNG LẠI!</string>		
+	</dict>
+</plist>

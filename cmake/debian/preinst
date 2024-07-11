@@ -1,0 +1,34 @@
+#!/bin/sh
+
+echo "Preparing to install AmbilightAPP..."
+
+# search for users in system, returns first entry
+FOUND_USR=`who | grep -o -m1 '^\w*\b'` || "root"
+
+# stop running daemon before we install
+if pgrep ambilightapp > /dev/null 2>&1
+then
+	if grep -m1 systemd /proc/1/comm > /dev/null
+	then
+		echo "Stopping AmbilightAPP daemon: systemd"
+		# systemd
+		systemctl stop ambilightapp"@${FOUND_USR}" 2> /dev/null
+
+	elif [ -e /sbin/initctl ]
+	then
+		echo "Stopping AmbilightAPP daemon: upstart"
+		# upstart
+		initctl stop ambilightapp
+
+	else
+		echo "Stopping AmbilightAPP daemon: sysV"
+		# sysV
+		service ambilightapp stop 2>/dev/null
+	fi
+fi
+
+# In case we don't use a service kill all instances
+killall ambilightapp 2> /dev/null
+
+# overwrite last return code
+exit 0
