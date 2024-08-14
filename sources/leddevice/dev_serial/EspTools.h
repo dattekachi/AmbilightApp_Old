@@ -121,7 +121,7 @@ public:
 				QString result = QString(incoming).remove('*').replace('\n', ' ').trimmed();
 				if (result.indexOf("ESP driver", Qt::CaseInsensitive) >= 0)
 				{
-					Info(_log, "DETECTED DEVICE USING HyperSerialEsp8266/HyperSerialESP32/HyperSerialPico FIRMWARE (%s) at %i msec", QSTRING_CSTR(result), int(InternalClock::now() - start));
+					Info(_log, "DETECTED DEVICE Ambilight USB (%s) at %i msec", QSTRING_CSTR(result), int(InternalClock::now() - start));
 					start = 0;
 					break;
 				}
@@ -131,7 +131,7 @@ public:
 		}
 
 		if (start != 0)
-			Error(_log, "Could not detect HyperSerialEsp8266/HyperSerialESP32/HyperSerialPico device");
+			Error(_log, "Could not detect Ambilight USB device");
 	}
 };
 

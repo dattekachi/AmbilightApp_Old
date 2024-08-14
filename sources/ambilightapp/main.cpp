@@ -357,7 +357,7 @@ int main(int argc, char** argv)
 			}
 		}
 
-		Info(log, "Starting AmbilightApp - %s, %s, built: %s:%s", AMBILIGHTAPP_VERSION, AMBILIGHTAPP_BUILD_ID, __DATE__, __TIME__);
+		Info(log, "Starting AmbilightApp - %s", AMBILIGHTAPP_VERSION);
 		Debug(log, "QtVersion [%s]", QT_VERSION_STR);
 
 		if (!readonlyMode)
