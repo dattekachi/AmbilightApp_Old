@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Edited
+
 # detect CI
 if [ "$SYSTEM_COLLECTIONID" != "" ]; then
 	# Azure Pipelines

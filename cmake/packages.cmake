@@ -1,3 +1,4 @@
+# Edited
 MACRO (CHECK_GLIBC_VERSION)
     EXECUTE_PROCESS (
         COMMAND ldd --version

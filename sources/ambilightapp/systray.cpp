@@ -219,7 +219,7 @@ void SysTray::setAutorunState()
 	QSettings reg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
 	(currentState)
 		? reg.remove("Ambilightapp")
-		: reg.setValue("Ambilightapp", qApp->applicationFilePath().replace('/', '\\'));
+		: (reg.setValue("Ambilightapp", qApp->applicationFilePath().replace('/', '\\')), reg.remove("MusicLedStudio"));
 #endif
 }
 
