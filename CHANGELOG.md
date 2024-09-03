@@ -1,1 +1,1 @@
-- Switch xz to tukaani repo
+Improved performance and added new features
