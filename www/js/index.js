@@ -464,4 +464,31 @@ function resizeMainWindow()
     }
 }
 
-
+document.addEventListener('DOMContentLoaded', function() {
+  const menuItems = document.querySelectorAll('.nav-sidebar .nav-link');
+  
+  // Lấy hash từ URL hiện tại (ví dụ: #overview, #general, etc.)
+  const currentHash = window.location.hash || '#overview'; // Mặc định là #overview nếu không có hash
+  
+  menuItems.forEach(item => {
+    // Xóa active từ tất cả các items
+    item.classList.remove('active');
+    
+    // Thêm active cho item khớp với URL hiện tại
+    if (item.getAttribute('href') === currentHash) {
+      item.classList.add('active');
+      localStorage.setItem('activeMenu', currentHash);
+    }
+    
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      menuItems.forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      
+      const href = this.getAttribute('href');
+      localStorage.setItem('activeMenu', href);
+      window.location.hash = href;
+    });
+  });
+});

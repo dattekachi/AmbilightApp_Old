@@ -58,6 +58,8 @@ SysTray::SysTray(AmbilightAppDaemon* ambilightappDaemon, quint16 webPort)
 	_instanceManager = instanceManager;
 	connect(instanceManager.get(), &AmbilightAppManager::SignalInstanceStateChanged, this, &SysTray::signalInstanceStateChangedHandler);
 	connect(instanceManager.get(), &AmbilightAppManager::SignalSettingsChanged, this, &SysTray::signalSettingsChangedHandler);
+	_toggleLedAction = nullptr;
+	currentState = true;
 }
 
 SysTray::~SysTray()
@@ -83,11 +85,13 @@ SysTray::~SysTray()
 	delete _clearAction;
 	delete _runmusicledAction;
 	delete _restartappAction;
+	delete _brightnessMenu;
 	delete _autorunAction;
 	delete _trayIcon;
 	delete _trayIconEfxMenu;
 	delete _trayIconMenu;
 	delete _colorDlg;
+	delete _toggleLedAction;
 }
 
 void SysTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -123,6 +127,28 @@ void SysTray::createTrayIcon()
 	_trayIcon = new QSystemTrayIcon();
 	_trayIcon->setContextMenu(_trayIconMenu);
 
+    // if (_trayIcon == nullptr)
+    // {
+    //     _trayIconMenu = new QMenu();
+    //     _trayIcon = new QSystemTrayIcon();
+    //     _trayIcon->setContextMenu(_trayIconMenu);
+    //     connect(_trayIcon, &QSystemTrayIcon::activated, this, &SysTray::iconActivated);
+    //     _trayIcon->setIcon(QIcon(":/ambilightapp-icon-32px.png"));
+    //     _trayIcon->show();
+    // }
+	// _trayIconMenu->clear();
+
+	_brightnessMenu = new QMenu(tr("&Độ sáng LED"));
+	_brightnessMenu->setIcon(QPixmap(":/brightness.svg")); 
+
+	for(int brightness = 100; brightness >= 10; brightness -= 10) {
+		QAction* brightnessAction = new QAction(QString::number(brightness) + "%", this);
+		connect(brightnessAction, &QAction::triggered, this, [this, brightness]() {
+			this->setBrightness(brightness);
+		});
+		_brightnessMenu->addAction(brightnessAction);
+	}
+
 	_quitAction = new QAction(tr("&Thoát"));
 	_quitAction->setIcon(QPixmap(":/quit.svg"));
 	connect(_quitAction, &QAction::triggered, this, &SysTray::menuQuit);
@@ -136,7 +162,7 @@ void SysTray::createTrayIcon()
 	connect(_settingsAction, &QAction::triggered, this, &SysTray::settings);
 
 #ifdef _WIN32
-	_openscreencapAction = new QAction(tr("&Trình quét màu"));
+	_openscreencapAction = new QAction(tr("&Trình quét màu màn hình"));
 	_openscreencapAction->setIcon(QPixmap(":/settings.svg"));
 	connect(_openscreencapAction, &QAction::triggered, this, &SysTray::openScreenCap);
 #endif
@@ -152,6 +178,51 @@ void SysTray::createTrayIcon()
 	_restartappAction = new QAction(tr("&Khởi động lại"));
 	_restartappAction->setIcon(QPixmap(":/restart.svg"));
 	connect(_restartappAction, &QAction::triggered, this, &SysTray::restartApp);
+
+	_toggleLedAction = new QAction(tr("&Tắt LED"));
+    _toggleLedAction->setIcon(QPixmap(":/toggle.svg")); 
+    connect(_toggleLedAction, &QAction::triggered, this, &SysTray::toggleLedState);
+
+    // QMenu* instancesMenu = new QMenu(tr("&Chọn thiết bị LED"), _trayIconMenu);
+    // instancesMenu->setIcon(QIcon(":/instance.svg")); 
+
+    // QActionGroup* instanceGroup = new QActionGroup(this);
+    // instanceGroup->setExclusive(true);
+
+    // QAction* allAction = new QAction("Tất cả", instanceGroup);
+    // allAction->setCheckable(true);
+    // allAction->setChecked(_selectedInstance == -1);
+    // connect(allAction, &QAction::triggered, this, [this]() {
+    //     _selectedInstance = -1;
+    //     selectInstance();
+    // });
+    // instancesMenu->addAction(allAction);
+    
+    // instancesMenu->addSeparator();
+
+    // std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+    // if (instanceManager != nullptr)
+    // {
+    //     QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+        
+    //     for (const QVariantMap& instance : instanceData)
+    //     {
+    //         if (instance["enabled"].toBool())
+    //         {
+    //             int index = instance["instance"].toInt();
+    //             QString name = instance["friendly_name"].toString();
+                
+    //             QAction* instanceAction = new QAction(name, instanceGroup);
+    //             instanceAction->setCheckable(true);
+    //             instanceAction->setChecked(index == _selectedInstance);
+    //             connect(instanceAction, &QAction::triggered, this, [this, index]() {
+    //                 _selectedInstance = index;
+    //                 selectInstance();
+    //             });
+    //             instancesMenu->addAction(instanceAction);
+    //         }
+    //     }
+    // }
 
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	std::list<EffectDefinition> efxs;
@@ -173,28 +244,32 @@ void SysTray::createTrayIcon()
 		_trayIconEfxMenu->addAction(efxAction);
 	}
 
-#ifdef _WIN32
-	_autorunAction = new QAction(tr("&Tắt tự khởi động"));
-	_autorunAction->setIcon(QPixmap(":/autorun.svg"));
-	connect(_autorunAction, &QAction::triggered, this, &SysTray::setAutorunState);
-
-	_trayIconMenu->addAction(_autorunAction);
-	_trayIconMenu->addSeparator();
-#endif
-
-	_trayIconMenu->addAction(_settingsAction);
-	_trayIconMenu->addSeparator();
 	_trayIconMenu->addAction(_colorAction);
 	_trayIconMenu->addMenu(_trayIconEfxMenu);
 	_trayIconMenu->addAction(_clearAction);
 	_trayIconMenu->addAction(_runmusicledAction);
 	_trayIconMenu->addSeparator();
+	_trayIconMenu->addMenu(_brightnessMenu);
+	_trayIconMenu->addAction(_toggleLedAction);
+	// _trayIconMenu->addMenu(instancesMenu);
+	_trayIconMenu->addSeparator();
+	_trayIconMenu->addAction(_settingsAction);
 #ifdef _WIN32
 	_trayIconMenu->addAction(_openscreencapAction);
 	_trayIconMenu->addSeparator();
+	_autorunAction = new QAction(tr("&Tắt tự khởi động"));
+	_autorunAction->setIcon(QPixmap(":/autorun.svg"));
+	connect(_autorunAction, &QAction::triggered, this, &SysTray::setAutorunState);
+	_trayIconMenu->addAction(_autorunAction);
 #endif
+	_trayIconMenu->addSeparator();
 	_trayIconMenu->addAction(_restartappAction);
 	_trayIconMenu->addAction(_quitAction);
+}
+
+void SysTray::selectInstance()
+{
+    createTrayIcon();
 }
 
 #ifdef _WIN32
@@ -332,6 +407,26 @@ void SysTray::restartApp()
 	QCoreApplication::exit(12);
 }
 
+void SysTray::setBrightness(int brightness) 
+{
+    std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+    if (instanceManager)
+    {
+        instanceManager->setInstanceBrightness(_selectedInstance, brightness);
+    }
+}
+
+void SysTray::toggleLedState()
+{
+    std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+    if (instanceManager)
+    {
+        currentState = !currentState;
+        instanceManager->setInstanceComponentState(_selectedInstance, ambilightapp::COMP_LEDDEVICE, currentState);
+        _toggleLedAction->setText(currentState ? tr("&Tắt LED") : tr("&Bật LED"));
+    }
+}
+
 void SysTray::menuQuit()
 {
 #ifdef _WIN32
@@ -359,10 +454,18 @@ void SysTray::signalInstanceStateChangedHandler(InstanceState state, quint8 inst
 				_trayIcon->show();		
 			}
 			break;
+		
+		// case InstanceState::STOP:
+        //     if (instance == _selectedInstance)
+        //     {
+        //         _selectedInstance = -1;
+        //     }
+        //     break;
 
 		default:
 			break;
 	}
+	// createTrayIcon();
 }
 
 void SysTray::signalSettingsChangedHandler(settings::type type, const QJsonDocument& data)

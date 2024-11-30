@@ -16,7 +16,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
 
-        <title data-i18n="general_webui_title">Ambilight App - Cài Đặt App</title>
+        <title data-i18n="general_webui_title">Ambilight App - Configuration</title>
 
         <!-- jQuery -->
         <script src="js/lib/jquery.min.js"></script>
@@ -80,30 +80,31 @@
 
 	</style>
 
-    <body class="sidebar-mini layout-fixed layout-navbar-not-fixed">
+    <!-- <body class="sidebar-mini layout-fixed layout-navbar-not-fixed"> -->
+	<body>
+		<noscript>
+			<div style="color: red; margin: 40px 0; text-align: center;">
+				<img src="img/ambilightapp/ambilightapplogo.png" alt="Redefine ambient light!" />
+				<h3>Ambilight App Web Configuration requires Javascript. Please enable Javascript in your browser for this page in order to use it!</h3>
+			</div>
+			<style type="text/css">
+				#loading_overlay,
+				#wrapper {
+					display: none;
+				}
+			</style>
+		</noscript>
+		
+		
+		<!-- <a href="#" id="main-window-button-menu" class="nav-link" data-widget="pushmenu" role="button" style = "position: fixed; top: 0; right: 0px; z-index: 200">			
+			<div class="icon-menu-control pt-3 pe-3">					
+				<svg id="showMenuIcon" data-src="svg/left_menu_hide.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 1; transition: opacity 0.5s;"></svg>
+				<svg id="hideMenuIcon" data-src="svg/left_menu_show.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 0; transition: opacity 0.5s;"></svg>
+			</div>			
+		</a> -->
+
+		<div id="loading_overlay" class="overlay"></div>
 		<div class="wrapper">
-			<noscript>
-				<div style="color: red; margin: 40px 0; text-align: center;">
-					<img src="img/ambilightapp/ambilightapplogo.png" alt="Redefine ambient light!" />
-					<h3>Ambilight App Web Configuration requires Javascript. Please enable Javascript in your browser for this page in order to use it!</h3>
-				</div>
-				<style type="text/css">
-					#loading_overlay,
-					#wrapper {
-						display: none;
-					}
-				</style>
-			</noscript>
-			
-			
-			<a href="#" id="main-window-button-menu" class="nav-link" data-widget="pushmenu" role="button" style = "position: fixed; top: 0; right: 0px; z-index: 200">			
-				<div class="icon-menu-control pt-3 pe-3">					
-					<svg id="showMenuIcon" data-src="svg/left_menu_hide.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 1; transition: opacity 0.5s;"></svg>
-					<svg id="hideMenuIcon" data-src="svg/left_menu_show.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 0; transition: opacity 0.5s;"></svg>
-				</div>			
-			</a>
-  
-			<div id="loading_overlay" class="overlay"></div>
 			
 			<!-- Main Sidebar Container -->
 			<aside id="main-window-aside" class="main-sidebar sidebar-light elevation-4">			
@@ -153,20 +154,20 @@
 					<li class="nav-item">
 						<a href="#overview" class="nav-link system-link"><svg data-src="svg/overview_heartbeat.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_dashboard_token">Tổng quan</p></a>
 					</li>
+
+					<hr>
+
 					<li class="nav-item">
 						<a href="#general" class="nav-link system-link"><svg data-src="svg/light_source.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_general_conf_token">Quản lí LED</p></a>
 					</li>
 					<li class="nav-item">					
 						<a href="#light_source" class="nav-link system-link"><svg data-src="svg/general.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_leds_conf_token">Cấu hình LED</p></a>
 					</li>
-					
+
 					<hr>
 
 					<li class="nav-item">											
 						<a href="#effects" class="nav-link system-link"><svg data-src="svg/effects.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_effect_conf_token">Cài đặt hiệu ứng</p></a>
-					</li>
-					<li class="nav-item">																	
-						<a href="#processing" class="nav-link system-link"><svg data-src="svg/image_processing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_colors_conf_token">Xử lý hình ảnh, màu sắc</p></a>
 					</li>
 
 					<hr>
@@ -179,7 +180,7 @@
 							<li class="nav-item">
 								<a href="#grabber" class="nav-link system-link"><svg data-src="svg/capturing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_grabber_conf_token">Capturing Hardware</p></a>
 							</li>					
-							<li class="nav-item">																	
+							<!-- <li class="nav-item">																	
 								<a href="#remote" class="nav-link system-link"><svg data-src="svg/remote_control.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_remotecontrol_token">Bảng điều khiển nhanh</p></a>
 							</li>	
 							<li class="nav-item">																	
@@ -187,7 +188,10 @@
 							</li>		
 							<li class="nav-item">																	
 								<a href="#logs" class="nav-link system-link"><svg data-src="svg/logs.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_logging_token">Gỡ Lỗi</p></a>
-							</li>	
+							</li>	 -->
+							<li class="nav-item">																	
+								<a href="#processing" class="nav-link system-link"><svg data-src="svg/image_processing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_colors_conf_token">Xử lý hình ảnh, màu sắc</p></a>
+							</li>
 							<li id="btn_changePassword">
 								<a class="nav-link"><svg data-src="svg/change_password.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><span data-i18n="InfoDialog_changePassword_title"></span></a>
 							</li>								
@@ -200,6 +204,10 @@
 						</a>
 						<ul id="language_container_menu" class="nav nav-treeview"></ul>
 					</li>
+
+					<!-- <li class="nav-item">																	
+						<a href="#logs" class="nav-link system-link"><svg data-src="svg/logs.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_logging_token">Gỡ Lỗi</p></a>
+					</li> -->
 				  </ul>
 				</nav>
 				<!-- /.sidebar-menu -->

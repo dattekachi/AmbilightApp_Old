@@ -9,6 +9,7 @@
 #include <base/AmbilightAppManager.h>
 #include <QSystemTrayIcon>
 #include <QWidget>
+#include <utils/Components.h>
 
 class AmbilightAppDaemon;
 class QMenu;
@@ -35,6 +36,9 @@ public slots:
 	void restartApp();
 	void menuQuit();
 	void setAutorunState();
+	void setBrightness(int brightness);
+	void toggleLedState();
+	void selectInstance();
 
 private slots:
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -66,14 +70,17 @@ private:
 	QAction* _runmusicledAction;
 	QAction* _restartappAction;
 	QAction* _autorunAction;
+	QAction* _toggleLedAction;
 
 	QSystemTrayIcon* _trayIcon;
 	QMenu*           _trayIconMenu;
 	QMenu*           _trayIconEfxMenu;
+	QMenu*           _brightnessMenu;
 
 	QColorDialog*		_colorDlg;
 
 	std::weak_ptr<AmbilightAppManager> _instanceManager;
 	quint16				_webPort;
 	int					_selectedInstance;
+	bool				currentState;
 };

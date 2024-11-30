@@ -2,51 +2,88 @@
 	"type":"object",
 	"required":true,
 	"properties":{
+		"ledType" :
+		{
+			"type" : "string",
+			"title" : "Loại LED",
+			"enum" : ["screen", "edge", "dualScreen"],
+			"default" : "screen",
+			"options" : {
+				"enum_titles" : ["Màn hình", "Cạnh bàn", "2 LED màn hình"]
+			},
+			"required" : true,
+			"propertyOrder" : 1
+		},
+		"sideScreen" :
+		{
+			"type" : "string",
+			"title" : "Vị trí LED",
+			"enum" : ["left", "right"],
+			"default" : "left",
+			"options" : {
+				"enum_titles" : ["Bên trái", "Bên phải"],
+				"dependencies": {
+					"ledType": "dualScreen"
+				}
+			},
+			"required" : true,
+			"propertyOrder" : 2
+		},
+		"screenSize" :
+		{
+			"type" : "string",
+			"title" : "Kích thước LED",
+			"enum" : ["13", "17", "19", "20", "22", "24", "25", "27", "28", "29", "30", "32", "34"],
+			"default" : "27",
+			"options" : {
+				"enum_titles" : ["13inch", "17inch", "19inch", "20inch", "22inch", "24inch", "25inch", "27inch", "28inch", "29inch", "30inch", "32inch", "34inch"],
+				"dependencies": {
+					"ledType": ["screen", "dualScreen"]
+				}
+			},
+			"required" : true,
+			"propertyOrder" : 3
+		},
+		"edgeSize" :
+		{
+			"type" : "string",
+			"title" : "Kích thước LED",
+			"enum" : ["1m", "1m2", "1m4", "1m6", "1m8", "2m"],
+			"default" : "1m2",
+			"options" : {
+				"enum_titles" : ["1 mét", "1,2 mét", "1,4 mét", "1,6 mét", "1,8 mét", "2 mét"],
+				"dependencies": {
+					"ledType": "edge"
+				}
+			},
+			"required" : true,
+			"propertyOrder" : 4
+		},
 		"output": {
 			"type": "string",
 			"title":"edt_dev_spec_outputPath_title",
 			"default":"auto",
-			"propertyOrder" : 1
+			"propertyOrder" : 5
 		},
 		"rate" :
 		{
 			"type" : "integer",
 			"title" : "edt_dev_spec_baudrate_title",
-			"enum" : [153600, 1000000, 2000000],
+			"enum" : [153600, 1000000],
 			"default" : 1000000,
 			"options" : {
-				"enum_titles" : ["153600", "1000000", "2000000"]
+				"enum_titles" : ["153600", "1000000"]
 			},
-			"propertyOrder" : 2
+			"propertyOrder" : 6
 		},
 		"espHandshake" :
 		{
 			"type" : "boolean",
 			"format": "checkbox",
 			"title" : "edt_serial_espHandshake",		
-			"default" : true,
+			"default" : false,
 			"required" : true,
-			"propertyOrder" : 3
-		},
-		"delayAfterConnect": {
-			"type": "integer",
-			"title":"edt_dev_spec_delayAfterConnect_title",
-			"default": 0,
-			"append" : "ms",
-			"access" : "expert",
-			"propertyOrder" : 4
-		},
-		"maxRetry":
-		{
-			"type" : "integer",
-			"format" : "stepper",			
-			"step"   : 1,			
-			"title" : "edt_dev_max_retry",
-			"minimum" : 1,
-			"maximum" : 180,
-			"default" : 180,
-			"required" : true,
-			"propertyOrder" : 5
+			"propertyOrder" : 7
 		}
 	},
 	"additionalProperties": true

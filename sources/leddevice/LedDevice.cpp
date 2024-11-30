@@ -12,6 +12,7 @@
 #include <base/AmbilightAppInstance.h>
 #include <utils/JsonUtils.h>
 #include <utils/GlobalSignals.h>
+#include <QSerialPortInfo>
 
 std::atomic<bool> LedDevice::_signalTerminate(false);
 
@@ -32,7 +33,7 @@ LedDevice::LedDevice(const QJsonObject& deviceConfig, QObject* parent)
 	, _isDeviceReady(false)
 	, _isOn(false)
 	, _isDeviceInError(false)
-	, _maxRetry(60)
+	, _maxRetry(180)
 	, _currentRetry(0)
 	, _retryTimer(nullptr)
 	, _isRefreshEnabled(false)
@@ -173,14 +174,17 @@ void LedDevice::setupRetry(int interval)
 		connect(_retryTimer.get(), &QTimer::timeout, this, [this](){
 				if (_currentRetry > 0 && !_signalTerminate)
 				{
-					Warning(_log, "The LED device is not ready... trying to reconnect (try %i/%i).", (_maxRetry - _currentRetry + 1), _maxRetry);
+					Warning(_log, "Thiết bị LED chưa sẵn sàng... đang thử kết nối lại (lần %i/%i).", (_maxRetry - _currentRetry + 1), _maxRetry);
 					_currentRetry--;
 					enableDevice(true);
 				}
 				else
 				{
-					Error(_log, "The LED device is not ready... give up.");					
+					Error(_log, "Thiết bị LED chưa sẵn sàng... đã dừng thử lại.");
 					stopRetryTimer();
+					
+					// Thêm theo dõi thay đổi cổng USB sau khi hết retry
+					startUsbMonitoring();
 				}
 			});
 		_retryTimer->start(interval);
@@ -720,4 +724,57 @@ void LedDevice::LedStats::reset(int64_t now)
 	frames = 0;
 	droppedFrames = 0;
 	incomingframes = 1;
+}
+
+// Thêm phương thức để lấy danh sách cổng hiện tại
+QStringList LedDevice::getCurrentPorts()
+{
+    QStringList ports;
+    for (const QSerialPortInfo& info : QSerialPortInfo::availablePorts())
+    {
+        ports << info.portName();
+    }
+    return ports;
+}
+
+void LedDevice::startUsbMonitoring()
+{
+    // Lưu danh sách cổng hiện tại
+    _lastPortList = getCurrentPorts();
+    
+    // Tạo timer để kiểm tra định kỳ
+    _usbMonitorTimer = std::unique_ptr<QTimer>(new QTimer());
+    connect(_usbMonitorTimer.get(), &QTimer::timeout, this, [this](){
+        if (!_isDeviceReady && !_signalTerminate)
+        {
+            // Lấy danh sách cổng hiện tại
+            QStringList currentPorts = getCurrentPorts();
+            
+            // Kiểm tra xem có sự thay đổi không
+            if (currentPorts != _lastPortList)
+            {
+                Info(_log, "USB port change detected, attempting to reconnect...");
+                _lastPortList = currentPorts;
+                enable();
+            }
+        }
+        else
+        {
+            stopUsbMonitoring();
+        }
+    });
+    
+    _usbMonitorTimer->start(2000);
+    Info(_log, "Started monitoring USB port changes...");
+}
+
+void LedDevice::stopUsbMonitoring()
+{
+    if (_usbMonitorTimer != nullptr)
+    {
+        _usbMonitorTimer->stop();
+        _usbMonitorTimer.reset();
+        _lastPortList.clear();
+        Debug(_log, "Stopped monitoring USB");
+    }
 }

@@ -137,10 +137,15 @@ protected slots:
 private:
 	void stopRefreshTimer();
 	void stopRetryTimer();
+	void startUsbMonitoring();
+    void stopUsbMonitoring();
 
 	std::atomic_bool	_isRefreshEnabled;
 	std::atomic_bool	_newFrame2Send;
 	std::vector<ColorRgb> _lastLedValues;
+	std::unique_ptr<QTimer> _usbMonitorTimer;
+	QStringList _lastPortList;
+	QStringList getCurrentPorts();
 
 	struct LedStats
 	{

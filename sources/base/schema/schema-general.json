@@ -19,7 +19,7 @@
 			"type" : "boolean",
 			"format": "checkbox",
 			"title" : "edt_conf_gen_showOptHelp_title",
-			"default" : true,
+			"default" : false,
 			"required" : true,
 			"propertyOrder" : 3
 		},

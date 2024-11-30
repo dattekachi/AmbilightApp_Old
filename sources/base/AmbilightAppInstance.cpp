@@ -307,7 +307,7 @@ void AmbilightAppInstance::handleSettingsUpdate(settings::type type, const QJson
 	else if (type == settings::type::BGEFFECT || type == settings::type::FGEFFECT)
 	{
 		bool isBootEffect = (type == settings::type::FGEFFECT);
-		int effectPriority = (isBootEffect) ? 0 : 254;
+		int effectPriority = (isBootEffect) ? 0 : 100;
 
 		if (isBootEffect)
 		{

@@ -12,6 +12,7 @@ body {
     font-family: Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 15px;
     margin: 0 auto;
+	max-width: 2000px;
 }
 
 body:not(.dark-mode) .text-info {
@@ -484,7 +485,9 @@ input::-webkit-inner-spin-button {
 }
 
 input[type=number] {
-    -moz-appearance:textfield;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 /*Panels*/
@@ -1132,4 +1135,28 @@ body:not(.dark-mode) input.mobileToggle:checked + label
 input.mobileToggle:disabled + label:before
 {	
 	background: #a0a0a0 !important;	
+}
+
+.nav-sidebar .nav-link.active:hover {
+  color: #fff !important;
+  background-color: #007bff !important;
+}
+
+.nav-sidebar .nav-link.active {
+  color: #fff !important;
+  background-color: #007bff !important;
+}
+
+body:not(.dark-mode) .nav-sidebar .nav-link.active:hover,
+body:not(.dark-mode) .nav-sidebar .nav-link.active {
+  background-color: #327faf !important;
+  border-color: #307baa !important;
+  color: #FFFFFF !important;
+}
+
+.dark-mode .nav-sidebar .nav-link.active:hover,
+.dark-mode .nav-sidebar .nav-link.active {
+  background-color: #2774a3 !important;
+  border-color: #2470a0 !important;
+  color: #FFFFFF !important;
 }

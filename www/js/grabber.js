@@ -1,16 +1,16 @@
 $(document).ready( function(){
 	performTranslation();
 		
-	var conf_video_section_editor = null;
-	var conf_editor_videoControl = null;
+	// var conf_video_section_editor = null;
+	// var conf_editor_videoControl = null;
 	var conf_system_section_editor = null;
 	var conf_editor_systemControl = null;	
 	var globalCurrentDevice = null;
 	var wizardTimer;
 	var backupWizard;
 	
-	var VIDEO_AVAILABLE = window.serverInfo.grabbers != null && window.serverInfo.grabbers.available != null &&
-							window.serverInfo.grabbers.available.find(element => element.indexOf("Video capturing")!=-1);
+	// var VIDEO_AVAILABLE = window.serverInfo.grabbers != null && window.serverInfo.grabbers.available != null &&
+	// 						window.serverInfo.grabbers.available.find(element => element.indexOf("Video capturing")!=-1);
 	var SYSTEM_AVAILABLE = (window.serverInfo.systemGrabbers != null);
 
 	function startSignalWizard() {		
@@ -179,416 +179,416 @@ $(document).ready( function(){
 	}
 		
 	
-	if(VIDEO_AVAILABLE)
-	{		
-		function addRow4(col1, col2, col3, col4)
-		{
-			var parentRow = $("<div class='row mb-2 pt-2'>");
+	// if(VIDEO_AVAILABLE)
+	// {		
+	// 	function addRow4(col1, col2, col3, col4)
+	// 	{
+	// 		var parentRow = $("<div class='row mb-2 pt-2'>");
 			
-			var newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
-			newRow.append(col1);
-			parentRow.append(newRow);
+	// 		var newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
+	// 		newRow.append(col1);
+	// 		parentRow.append(newRow);
 			
-			newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
-			newRow.append(col2);
-			parentRow.append(newRow);
+	// 		newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
+	// 		newRow.append(col2);
+	// 		parentRow.append(newRow);
 			
-			newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
-			newRow.append(col3);
-			parentRow.append(newRow);
+	// 		newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
+	// 		newRow.append(col3);
+	// 		parentRow.append(newRow);
 			
-			newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
-			newRow.append(col4);			
-			parentRow.append(newRow);
+	// 		newRow = $("<div class='col-12 col-lg-3 vidcol4'>");
+	// 		newRow.append(col4);			
+	// 		parentRow.append(newRow);
 			
-			$("#videoDeviceInfoTable").append(parentRow);
-		}
+	// 		$("#videoDeviceInfoTable").append(parentRow);
+	// 	}
 		
-		function addRow2(col1, col2, style = "", classCol1 = "", classCol2 = "")
-		{
-			var parentRow = $("<div class='row mb-2'>");
+	// 	function addRow2(col1, col2, style = "", classCol1 = "", classCol2 = "")
+	// 	{
+	// 		var parentRow = $("<div class='row mb-2'>");
 			
-			var newRow = $("<div class='col-3 col-lg-2 text-bold " + classCol1 + "'>");
-			newRow.append(col1);
-			parentRow.append(newRow);
+	// 		var newRow = $("<div class='col-3 col-lg-2 text-bold " + classCol1 + "'>");
+	// 		newRow.append(col1);
+	// 		parentRow.append(newRow);
 			
-			newRow = $("<div class='col-9 col-lg-10 " + classCol2 + "' style='" + style + "'>");
-			newRow.append(col2);
-			parentRow.append(newRow);
+	// 		newRow = $("<div class='col-9 col-lg-10 " + classCol2 + "' style='" + style + "'>");
+	// 		newRow.append(col2);
+	// 		parentRow.append(newRow);
 			
-			parentRow.append(newRow);
-			$("#videoDeviceInfoTable").append(parentRow);
-		}
+	// 		parentRow.append(newRow);
+	// 		$("#videoDeviceInfoTable").append(parentRow);
+	// 	}
 		
-		function addRow1(col1, classCol1 = "")
-		{
-			var parentRow = $("<div class='row mt-2'>");
+	// 	function addRow1(col1, classCol1 = "")
+	// 	{
+	// 		var parentRow = $("<div class='row mt-2'>");
 			
-			var newRow = $("<div class='col-12 text-bold " + classCol1 + "'>");
-			newRow.append(col1);
+	// 		var newRow = $("<div class='col-12 text-bold " + classCol1 + "'>");
+	// 		newRow.append(col1);
 			
-			parentRow.append(newRow);
-			$("#videoDeviceInfoTable").append(parentRow);
-		}
+	// 		parentRow.append(newRow);
+	// 		$("#videoDeviceInfoTable").append(parentRow);
+	// 	}
 		
-		function myPad(inputText, len)
-		{
-			var ret = String(inputText);
+	// 	function myPad(inputText, len)
+	// 	{
+	// 		var ret = String(inputText);
 			
-			while (ret.length < len)
-			{
-				ret = ret + " ";
-			}
-			return ret;
-		}
+	// 		while (ret.length < len)
+	// 		{
+	// 			ret = ret + " ";
+	// 		}
+	// 		return ret;
+	// 	}
 		
-		function unButton(e, tag)
-		{
-			if (e.classList.contains(tag))
-			{
-				e.classList.add("btn-light");
-				e.classList.remove("btn-success");
-				e.classList.remove(tag);
-			}
-		}
-		function selectMe(e, tag)
-		{
-			if (!e.currentTarget.classList.contains(tag))
-			{
-				var but = document.getElementsByClassName(tag);
-				Array.prototype.forEach.call(but, function(button, index) {
-					unButton(button, tag);
-				});
+	// 	function unButton(e, tag)
+	// 	{
+	// 		if (e.classList.contains(tag))
+	// 		{
+	// 			e.classList.add("btn-light");
+	// 			e.classList.remove("btn-success");
+	// 			e.classList.remove(tag);
+	// 		}
+	// 	}
+	// 	function selectMe(e, tag)
+	// 	{
+	// 		if (!e.currentTarget.classList.contains(tag))
+	// 		{
+	// 			var but = document.getElementsByClassName(tag);
+	// 			Array.prototype.forEach.call(but, function(button, index) {
+	// 				unButton(button, tag);
+	// 			});
 				
-				e.currentTarget.classList.add(tag);
-				e.currentTarget.classList.remove("btn-light");
-				e.currentTarget.classList.add("btn-success");
-			}
-			else
-				unButton(e.currentTarget, tag);			
-		}
+	// 			e.currentTarget.classList.add(tag);
+	// 			e.currentTarget.classList.remove("btn-light");
+	// 			e.currentTarget.classList.add("btn-success");
+	// 		}
+	// 		else
+	// 			unButton(e.currentTarget, tag);			
+	// 	}
 		
-		function cleanButtons()
-		{
-			if (document.getElementsByClassName("button_rate_mode_selected").length == 0 && 
-				document.getElementsByClassName("button_vid_mode_selected").length == 0)
-				{
-					var butr = document.getElementsByClassName("button_rate_mode");
-					Array.prototype.forEach.call(butr, function(button, index) {																								
-							button.classList.remove("disabled");
-						});
+	// 	function cleanButtons()
+	// 	{
+	// 		if (document.getElementsByClassName("button_rate_mode_selected").length == 0 && 
+	// 			document.getElementsByClassName("button_vid_mode_selected").length == 0)
+	// 			{
+	// 				var butr = document.getElementsByClassName("button_rate_mode");
+	// 				Array.prototype.forEach.call(butr, function(button, index) {																								
+	// 						button.classList.remove("disabled");
+	// 					});
 						
-					var butv = document.getElementsByClassName("button_vid_mode");
-					Array.prototype.forEach.call(butv, function(button, index) {																								
-							button.classList.remove("disabled");
-						});
-				}
+	// 				var butv = document.getElementsByClassName("button_vid_mode");
+	// 				Array.prototype.forEach.call(butv, function(button, index) {																								
+	// 						button.classList.remove("disabled");
+	// 					});
+	// 			}
 			
-		}
+	// 	}
 		
-		function CheckIsReady()
-		{
-			var trg = document.getElementById('ready_to_set');
+	// 	function CheckIsReady()
+	// 	{
+	// 		var trg = document.getElementById('ready_to_set');
 			
-			if (document.getElementsByClassName("button_rate_mode_selected").length == 1 && 
-				document.getElementsByClassName("button_vid_mode_selected").length == 1)
-				trg.classList.remove("disabled");
-			else
-				trg.classList.add("disabled");			
-		}
+	// 		if (document.getElementsByClassName("button_rate_mode_selected").length == 1 && 
+	// 			document.getElementsByClassName("button_vid_mode_selected").length == 1)
+	// 			trg.classList.remove("disabled");
+	// 		else
+	// 			trg.classList.add("disabled");			
+	// 	}
 		
-		function videoClick(e)		
-		{
-			selectMe(e, "button_vid_mode_selected");
+	// 	function videoClick(e)		
+	// 	{
+	// 		selectMe(e, "button_vid_mode_selected");
 			
-			if (e.currentTarget.classList.contains("button_vid_mode_selected"))
-			{
-				window.serverInfo.grabbers.video_devices.forEach(function(el) {
-					if (el.device == globalCurrentDevice)
-					{
-						var obj = $(e.currentTarget);
-						var width = obj.data('width');
-						var height = obj.data('height');
-						var pf = obj.data('pf');
+	// 		if (e.currentTarget.classList.contains("button_vid_mode_selected"))
+	// 		{
+	// 			window.serverInfo.grabbers.video_devices.forEach(function(el) {
+	// 				if (el.device == globalCurrentDevice)
+	// 				{
+	// 					var obj = $(e.currentTarget);
+	// 					var width = obj.data('width');
+	// 					var height = obj.data('height');
+	// 					var pf = obj.data('pf');
 					
-						if (width != null && height != null && pf != null)
-						{
-							var controlList = new Array();
+	// 					if (width != null && height != null && pf != null)
+	// 					{
+	// 						var controlList = new Array();
 							
-							el.videoModeList.forEach(function(mode) {
-								if (!controlList.includes(mode.fps) && mode.width == width && mode.height == height && mode.pixel_format_info == pf)
-								{
-									controlList.push(mode.fps);
-								}
-							});
+	// 						el.videoModeList.forEach(function(mode) {
+	// 							if (!controlList.includes(mode.fps) && mode.width == width && mode.height == height && mode.pixel_format_info == pf)
+	// 							{
+	// 								controlList.push(mode.fps);
+	// 							}
+	// 						});
 							
-							var but = document.getElementsByClassName("button_rate_mode");
-							Array.prototype.forEach.call(but, function(button, index) {																
-								var objBtn = $(button);
-								var fps = objBtn.data('fps');
+	// 						var but = document.getElementsByClassName("button_rate_mode");
+	// 						Array.prototype.forEach.call(but, function(button, index) {																
+	// 							var objBtn = $(button);
+	// 							var fps = objBtn.data('fps');
 								
-								if (fps == null || !controlList.includes(fps))
-								{
-									unButton(button, "button_rate_mode_selected");
-									button.classList.add("disabled");
-								}
-								else
-									button.classList.remove("disabled");
-							});
-						};
-					};
-				});
-			}
-			else
-				cleanButtons();
+	// 							if (fps == null || !controlList.includes(fps))
+	// 							{
+	// 								unButton(button, "button_rate_mode_selected");
+	// 								button.classList.add("disabled");
+	// 							}
+	// 							else
+	// 								button.classList.remove("disabled");
+	// 						});
+	// 					};
+	// 				};
+	// 			});
+	// 		}
+	// 		else
+	// 			cleanButtons();
 			
-			CheckIsReady();
-		}
+	// 		CheckIsReady();
+	// 	}
 		
-		function rateClick(e)
-		{			
-			selectMe(e, "button_rate_mode_selected");
+	// 	function rateClick(e)
+	// 	{			
+	// 		selectMe(e, "button_rate_mode_selected");
 			
-			if (e.currentTarget.classList.contains("button_rate_mode_selected"))
-			{
-				window.serverInfo.grabbers.video_devices.forEach(function(el) {
-					if (el.device == globalCurrentDevice)
-					{
-						var obj = $(e.currentTarget);
-						var fps = obj.data('fps');
+	// 		if (e.currentTarget.classList.contains("button_rate_mode_selected"))
+	// 		{
+	// 			window.serverInfo.grabbers.video_devices.forEach(function(el) {
+	// 				if (el.device == globalCurrentDevice)
+	// 				{
+	// 					var obj = $(e.currentTarget);
+	// 					var fps = obj.data('fps');
 					
-						if (fps != null)
-						{
-							var controlList = new Array();
+	// 					if (fps != null)
+	// 					{
+	// 						var controlList = new Array();
 							
-							el.videoModeList.forEach(function(mode) {
-								var mark = mode.width+"_"+mode.height+"_"+mode.pixel_format_info;
-								if (!controlList.includes(mark) && mode.fps == fps)
-								{
-									controlList.push(mark);
-								}
-							});
+	// 						el.videoModeList.forEach(function(mode) {
+	// 							var mark = mode.width+"_"+mode.height+"_"+mode.pixel_format_info;
+	// 							if (!controlList.includes(mark) && mode.fps == fps)
+	// 							{
+	// 								controlList.push(mark);
+	// 							}
+	// 						});
 
-							var but = document.getElementsByClassName("button_vid_mode");
-							Array.prototype.forEach.call(but, function(button, index) {																
-								var objBtn = $(button);
-								var width = objBtn.data('width');
-								var height = objBtn.data('height');
-								var pf = objBtn.data('pf');
-								var mark = width+"_"+height+"_"+pf;
+	// 						var but = document.getElementsByClassName("button_vid_mode");
+	// 						Array.prototype.forEach.call(but, function(button, index) {																
+	// 							var objBtn = $(button);
+	// 							var width = objBtn.data('width');
+	// 							var height = objBtn.data('height');
+	// 							var pf = objBtn.data('pf');
+	// 							var mark = width+"_"+height+"_"+pf;
 								
-								if (width == null || height == null || pf == null || !controlList.includes(mark))
-								{
-									unButton(button, "button_vid_mode_selected");
-									button.classList.add("disabled");
-								}
-								else
-									button.classList.remove("disabled");
-							});
-						};
-					};
-				});
-			}
-			else
-				cleanButtons();
+	// 							if (width == null || height == null || pf == null || !controlList.includes(mark))
+	// 							{
+	// 								unButton(button, "button_vid_mode_selected");
+	// 								button.classList.add("disabled");
+	// 							}
+	// 							else
+	// 								button.classList.remove("disabled");
+	// 						});
+	// 					};
+	// 				};
+	// 			});
+	// 		}
+	// 		else
+	// 			cleanButtons();
 			
-			CheckIsReady();
-		}
+	// 		CheckIsReady();
+	// 	}
 		
-		function checkAndCreateMode(source, parentRow, tag)
-		{
-			var content = "";
-			var modeButton = $("<button>");
+	// 	function checkAndCreateMode(source, parentRow, tag)
+	// 	{
+	// 		var content = "";
+	// 		var modeButton = $("<button>");
 			
-			modeButton.addClass('btn btn-light w-100 ' + tag);
+	// 		modeButton.addClass('btn btn-light w-100 ' + tag);
 			
-			if (typeof source === 'string' || source instanceof String)
-			{
-				content = source;
-				modeButton.data('fps', Number(source));
-			}
-			else
-			{
-				content = myPad(source.width + "x" + source.height, 10) + myPad(source.pixel_format_info, 5);
-				modeButton.data('width',source.width);
-				modeButton.data('height',source.height);
-				modeButton.data('pf',source.pixel_format_info);
-			}
+	// 		if (typeof source === 'string' || source instanceof String)
+	// 		{
+	// 			content = source;
+	// 			modeButton.data('fps', Number(source));
+	// 		}
+	// 		else
+	// 		{
+	// 			content = myPad(source.width + "x" + source.height, 10) + myPad(source.pixel_format_info, 5);
+	// 			modeButton.data('width',source.width);
+	// 			modeButton.data('height',source.height);
+	// 			modeButton.data('pf',source.pixel_format_info);
+	// 		}
 				
 			
-			modeButton.append(content);
+	// 		modeButton.append(content);
 			
-			if (tag == 'button_vid_mode')
-				modeButton.click(function(e){    
-					videoClick(e);
-				});
-			else
-				modeButton.click(function(e){    
-					rateClick(e);
-				});			
+	// 		if (tag == 'button_vid_mode')
+	// 			modeButton.click(function(e){    
+	// 				videoClick(e);
+	// 			});
+	// 		else
+	// 			modeButton.click(function(e){    
+	// 				rateClick(e);
+	// 			});			
 			
-			var newRow = $("<div class='col-12 col-xs-6 col-sm-6 col-lg-3 p-1'>");
-			newRow.append(modeButton);
+	// 		var newRow = $("<div class='col-12 col-xs-6 col-sm-6 col-lg-3 p-1'>");
+	// 		newRow.append(modeButton);
 			
-			parentRow.append(newRow);
-		}
+	// 		parentRow.append(newRow);
+	// 	}
 		
-		function buildModes(videoDevice)
-		{				
-			var controlList = new Array();
-			var parentRow = $("<div class='row'>");
+	// 	function buildModes(videoDevice)
+	// 	{				
+	// 		var controlList = new Array();
+	// 		var parentRow = $("<div class='row'>");
 			
-			addRow1($.i18n("edt_conf_stream_av_modes"),'videoDeviceInfoImpColumn border-top pt-2');
-			videoDevice.videoModeList.forEach(function(el) {
-				var control = el.width + "_" + el.height+"_"+el.pixel_format_info;
-				if (!controlList.includes(control))
-				{
-					controlList.push(control);
-					checkAndCreateMode(el, parentRow, 'button_vid_mode');
-				};
-			});
+	// 		addRow1($.i18n("edt_conf_stream_av_modes"),'videoDeviceInfoImpColumn border-top pt-2');
+	// 		videoDevice.videoModeList.forEach(function(el) {
+	// 			var control = el.width + "_" + el.height+"_"+el.pixel_format_info;
+	// 			if (!controlList.includes(control))
+	// 			{
+	// 				controlList.push(control);
+	// 				checkAndCreateMode(el, parentRow, 'button_vid_mode');
+	// 			};
+	// 		});
 
 			
-			$("#videoDeviceInfoTable").append(parentRow);
+	// 		$("#videoDeviceInfoTable").append(parentRow);
 			
-			if (controlList.length > 24)
-			{
-				var butr = document.getElementsByClassName("button_vid_mode");
-				Array.prototype.forEach.call(butr, function(button, index) {																								
-						button.classList.add("btn-sm");
-					});
-			}
+	// 		if (controlList.length > 24)
+	// 		{
+	// 			var butr = document.getElementsByClassName("button_vid_mode");
+	// 			Array.prototype.forEach.call(butr, function(button, index) {																								
+	// 					button.classList.add("btn-sm");
+	// 				});
+	// 		}
 			
-		}
+	// 	}
 		
-		function buildRefreshRates(videoDevice)
-		{
-			var parentRow = $("<div class='row'>");
+	// 	function buildRefreshRates(videoDevice)
+	// 	{
+	// 		var parentRow = $("<div class='row'>");
 			
-			addRow1($.i18n("edt_conf_stream_ref_rates"),'videoDeviceInfoImpColumn border-top pt-2');		
-			videoDevice.framerates.forEach(function(el) {
-				checkAndCreateMode(el, parentRow, 'button_rate_mode');
-			});
+	// 		addRow1($.i18n("edt_conf_stream_ref_rates"),'videoDeviceInfoImpColumn border-top pt-2');		
+	// 		videoDevice.framerates.forEach(function(el) {
+	// 			checkAndCreateMode(el, parentRow, 'button_rate_mode');
+	// 		});
 			
-			$("#videoDeviceInfoTable").append(parentRow);	
-		}
+	// 		$("#videoDeviceInfoTable").append(parentRow);	
+	// 	}
 		
-		function buildInfoPanel(selectedDevice)
-		{			
-			var button = $('<button>');
-			var buttonIcon = $('<svg data-src="svg/info.svg" aria-hidden="true" fill="currentColor" class="svg4ambilightapp me-1" />');
-			var correction = 0;
+	// 	function buildInfoPanel(selectedDevice)
+	// 	{			
+	// 		var button = $('<button>');
+	// 		var buttonIcon = $('<svg data-src="svg/info.svg" aria-hidden="true" fill="currentColor" class="svg4ambilightapp me-1" />');
+	// 		var correction = 0;
 			
-			if (document.getElementById('page-content').clientWidth <= 800)
-				correction = 11;
-			else if (document.getElementById('page-content').clientWidth <= 1024)
-				correction = 7;
+	// 		if (document.getElementById('page-content').clientWidth <= 800)
+	// 			correction = 11;
+	// 		else if (document.getElementById('page-content').clientWidth <= 1024)
+	// 			correction = 7;
 					  
-			button.attr('id','video_info_button')
-				  .attr('data-bs-toggle','modal')
-				  .attr('data-bs-target','#videoDeviceInfoPanel')
-				  .attr('style', "float:right;")
-				  .css('width', String(21 + correction)+'%')
-				  .addClass('btn btn-warning')
-				  .append(buttonIcon)
-				  .append('Info');
+	// 		button.attr('id','video_info_button')
+	// 			  .attr('data-bs-toggle','modal')
+	// 			  .attr('data-bs-target','#videoDeviceInfoPanel')
+	// 			  .attr('style', "float:right;")
+	// 			  .css('width', String(21 + correction)+'%')
+	// 			  .addClass('btn btn-warning')
+	// 			  .append(buttonIcon)
+	// 			  .append('Info');
 				  
-			document.getElementById('root[videoGrabber][device]').style.width = String(77 - correction) + "%";
-			document.getElementById('root[videoGrabber][device]').parentElement.appendChild(button[0]);
+	// 		document.getElementById('root[videoGrabber][device]').style.width = String(77 - correction) + "%";
+	// 		document.getElementById('root[videoGrabber][device]').parentElement.appendChild(button[0]);
 							
-			addRow2($.i18n("edt_conf_stream_device_title"), selectedDevice, '', 'videoDeviceInfoImpColumn pt-2', 'videoDeviceInfoImpColumn pt-2 my-text-success');			
+	// 		addRow2($.i18n("edt_conf_stream_device_title"), selectedDevice, '', 'videoDeviceInfoImpColumn pt-2', 'videoDeviceInfoImpColumn pt-2 my-text-success');			
 			
-			window.serverInfo.grabbers.video_devices.forEach(function(el) {
-				if (el.device == selectedDevice)
-				{
-					if (el.name != selectedDevice)
-					{
-						if (el.name.length > 24)
-							addRow2($.i18n("edt_conf_stream_device_info"), el.name, 'overflow-wrap: break-word; font-size:85%;', 'videoDeviceInfoImpColumn border-top pt-2', 'videoDeviceInfoImpColumn text-secondary border-top pt-2');
-						else
-							addRow2($.i18n("edt_conf_stream_device_info"), el.name, 'overflow-wrap: break-word; ', 'videoDeviceInfoImpColumn border-top pt-2', 'videoDeviceInfoImpColumn text-secondary border-top pt-2');
-					}
+	// 		window.serverInfo.grabbers.video_devices.forEach(function(el) {
+	// 			if (el.device == selectedDevice)
+	// 			{
+	// 				if (el.name != selectedDevice)
+	// 				{
+	// 					if (el.name.length > 24)
+	// 						addRow2($.i18n("edt_conf_stream_device_info"), el.name, 'overflow-wrap: break-word; font-size:85%;', 'videoDeviceInfoImpColumn border-top pt-2', 'videoDeviceInfoImpColumn text-secondary border-top pt-2');
+	// 					else
+	// 						addRow2($.i18n("edt_conf_stream_device_info"), el.name, 'overflow-wrap: break-word; ', 'videoDeviceInfoImpColumn border-top pt-2', 'videoDeviceInfoImpColumn text-secondary border-top pt-2');
+	// 				}
 					
-					addRow1($.i18n("edt_conf_stream_hard_cap"),'videoDeviceInfoImpColumn border-top pt-2');
-					addRow4(el.videoControls.BrightnessDef.replace("Brightness:", $.i18n("edt_conf_stream_control_brightness")),
-							el.videoControls.ContrastDef.replace("Contrast:", $.i18n("edt_conf_stream_control_contrast")),
-							el.videoControls.SaturationDef.replace("Saturation:", $.i18n("edt_conf_stream_control_saturation")),
-							el.videoControls.HueDef.replace("Hue:", $.i18n("edt_conf_stream_control_hue")));
+	// 				addRow1($.i18n("edt_conf_stream_hard_cap"),'videoDeviceInfoImpColumn border-top pt-2');
+	// 				addRow4(el.videoControls.BrightnessDef.replace("Brightness:", $.i18n("edt_conf_stream_control_brightness")),
+	// 						el.videoControls.ContrastDef.replace("Contrast:", $.i18n("edt_conf_stream_control_contrast")),
+	// 						el.videoControls.SaturationDef.replace("Saturation:", $.i18n("edt_conf_stream_control_saturation")),
+	// 						el.videoControls.HueDef.replace("Hue:", $.i18n("edt_conf_stream_control_hue")));
 
-					buildModes(el);
+	// 				buildModes(el);
 					
-					buildRefreshRates(el);
-				}
-			});
-		}
+	// 				buildRefreshRates(el);
+	// 			}
+	// 		});
+	// 	}
 		
-		function BuildCalibrationButton(enabled)
-		{	
-			$('#video_calibration_button').remove();		
+	// 	function BuildCalibrationButton(enabled)
+	// 	{	
+	// 		$('#video_calibration_button').remove();		
 			
-			if (!enabled)
-				return;			
+	// 		if (!enabled)
+	// 			return;			
 			
-			var placeHolder = document.getElementsByName('root[videoGrabber][autoSignalDetection]');
-			if (placeHolder.length > 0)
-			{
-				var button = $('<button>');
-				var buttonIcon = $('<svg data-src="svg/button_play.svg" aria-hidden="true" fill="currentColor" class="svg4ambilightapp me-1" />');			
+	// 		var placeHolder = document.getElementsByName('root[videoGrabber][autoSignalDetection]');
+	// 		if (placeHolder.length > 0)
+	// 		{
+	// 			var button = $('<button>');
+	// 			var buttonIcon = $('<svg data-src="svg/button_play.svg" aria-hidden="true" fill="currentColor" class="svg4ambilightapp me-1" />');			
 								  
-				button.attr('id','video_calibration_button')				 
-				  .attr('style', "position:absolute; right:0px; top:0px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;")
-				  .addClass('btn btn-success')
-				  .append(buttonIcon)
-				  .append($.i18n("edt_conf_stream_calibrate_button"));
+	// 			button.attr('id','video_calibration_button')				 
+	// 			  .attr('style', "position:absolute; right:0px; top:0px; border-top-left-radius: 4px; border-bottom-left-radius: 4px;")
+	// 			  .addClass('btn btn-success')
+	// 			  .append(buttonIcon)
+	// 			  .append($.i18n("edt_conf_stream_calibrate_button"));
 				  
-				placeHolder[0].parentElement.appendChild(button[0]);
+	// 			placeHolder[0].parentElement.appendChild(button[0]);
 				
-				button.off().on('click', function () {
-					startSignalWizard();
-				});				
-			}			
-		}
+	// 			button.off().on('click', function () {
+	// 				startSignalWizard();
+	// 			});				
+	// 		}			
+	// 	}
 		
-		// Watch all video dynamic fields
-		function SelectedDeviceChanged(){
-			var path = 'root.videoGrabber.';
-			var val = conf_video_section_editor.getEditor(path+'device').getValue();				
+	// 	// Watch all video dynamic fields
+	// 	function SelectedDeviceChanged(){
+	// 		var path = 'root.videoGrabber.';
+	// 		var val = conf_video_section_editor.getEditor(path+'device').getValue();				
 			
-			['input', 'videoMode', 'fps', 'videoEncoding'].forEach(function(item) {						
-					if (val === 'auto')
-					{
-						conf_video_section_editor.getEditor(path + item).setValue('auto');
-						conf_video_section_editor.getEditor(path + item).disable();
-					}
-					else
-						conf_video_section_editor.getEditor(path + item).enable();
-			});											
+	// 		['input', 'videoMode', 'fps', 'videoEncoding'].forEach(function(item) {						
+	// 				if (val === 'auto')
+	// 				{
+	// 					conf_video_section_editor.getEditor(path + item).setValue('auto');
+	// 					conf_video_section_editor.getEditor(path + item).disable();
+	// 				}
+	// 				else
+	// 					conf_video_section_editor.getEditor(path + item).enable();
+	// 		});											
 			
-			BlockUnsupported();
+	// 		BlockUnsupported();
 			
-			$('#video_info_button').remove();			
-			$("#videoDeviceInfoTable").empty();						
+	// 		$('#video_info_button').remove();			
+	// 		$("#videoDeviceInfoTable").empty();						
 			
-			if (document.getElementById('root[videoGrabber][device]') != null)
-			{
-				if (val !== 'auto')										
-					buildInfoPanel(val);			
-				else
-					document.getElementById('root[videoGrabber][device]').style.width = "100%";
-			}
-		}
+	// 		if (document.getElementById('root[videoGrabber][device]') != null)
+	// 		{
+	// 			if (val !== 'auto')										
+	// 				buildInfoPanel(val);			
+	// 			else
+	// 				document.getElementById('root[videoGrabber][device]').style.width = "100%";
+	// 		}
+	// 	}
 		
-		var setWatchers = function() {
-			conf_video_section_editor.watch('root.videoGrabber.device', function() {
-				BuildVideoEditor(conf_video_section_editor.getEditor('root.videoGrabber.device').getValue());
-				SelectedDeviceChanged();		
-			});
+	// 	var setWatchers = function() {
+	// 		conf_video_section_editor.watch('root.videoGrabber.device', function() {
+	// 			BuildVideoEditor(conf_video_section_editor.getEditor('root.videoGrabber.device').getValue());
+	// 			SelectedDeviceChanged();		
+	// 		});
 			
-			conf_video_section_editor.watch('root.videoGrabber.autoSignalDetection', function() {
-				BuildCalibrationButton(conf_video_section_editor.getEditor('root.videoGrabber.autoSignalDetection').getValue());
-			});
-		};	
-	}
+	// 		conf_video_section_editor.watch('root.videoGrabber.autoSignalDetection', function() {
+	// 			BuildCalibrationButton(conf_video_section_editor.getEditor('root.videoGrabber.autoSignalDetection').getValue());
+	// 		});
+	// 	};	
+	// }
 
 	
 	 		
@@ -647,28 +647,28 @@ $(document).ready( function(){
 			createHint("intro", $.i18n('conf_grabber_dx11_intro'), "editor_container_system_device");
 	}
 
-	if(VIDEO_AVAILABLE) 
-	{
-		$('#conf_cont').append(createOptPanel('<svg data-src="svg/capturing_video.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_stream_heading_title"), 'editor_container_video_device', 'btn_submit_videoGrabber'));
-		$('#conf_cont').append(createHelpTable(window.schema.videoGrabber.properties, $.i18n("edt_conf_stream_heading_title")));
+	// if(VIDEO_AVAILABLE) 
+	// {
+	// 	$('#conf_cont').append(createOptPanel('<svg data-src="svg/capturing_video.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_stream_heading_title"), 'editor_container_video_device', 'btn_submit_videoGrabber'));
+	// 	$('#conf_cont').append(createHelpTable(window.schema.videoGrabber.properties, $.i18n("edt_conf_stream_heading_title")));
 	
-		$('#conf_cont').append(createOptPanel('<svg data-src="svg/capturing_video.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_instCapture_heading_title"), 'editor_container_videoControl', 'btn_submit_videoControl'));
-		$('#conf_cont').append(createHelpTable(window.schema.videoControl.properties, $.i18n("edt_conf_instCapture_heading_title")));			
+	// 	$('#conf_cont').append(createOptPanel('<svg data-src="svg/capturing_video.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_instCapture_heading_title"), 'editor_container_videoControl', 'btn_submit_videoControl'));
+	// 	$('#conf_cont').append(createHelpTable(window.schema.videoControl.properties, $.i18n("edt_conf_instCapture_heading_title")));			
 
-		// Instance Capture
-		conf_editor_videoControl = createJsonEditor('editor_container_videoControl', { videoControl: window.schema.videoControl}, true, true, undefined, true);
+	// 	// Instance Capture
+	// 	conf_editor_videoControl = createJsonEditor('editor_container_videoControl', { videoControl: window.schema.videoControl}, true, true, undefined, true);
 
-		conf_editor_videoControl.on('change',function() {
-			(conf_editor_videoControl.validate().length || window.readOnlyMode) ? $('#btn_submit_videoControl').attr('disabled', true) : $('#btn_submit_videoControl').attr('disabled', false);
-		});
+	// 	conf_editor_videoControl.on('change',function() {
+	// 		(conf_editor_videoControl.validate().length || window.readOnlyMode) ? $('#btn_submit_videoControl').attr('disabled', true) : $('#btn_submit_videoControl').attr('disabled', false);
+	// 	});
 
-		$('#btn_submit_videoControl').off().on('click',function() {
-			requestWriteConfig(conf_editor_videoControl.getValue());
-		});
-	}
+	// 	$('#btn_submit_videoControl').off().on('click',function() {
+	// 		requestWriteConfig(conf_editor_videoControl.getValue());
+	// 	});
+	// }
 
-	if(VIDEO_AVAILABLE)
-		BuildVideoEditor();
+	// if(VIDEO_AVAILABLE)
+	// 	BuildVideoEditor();
 	
 	if (window.serverInfo.hasCEC != 1)
 	{	

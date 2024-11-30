@@ -19,6 +19,8 @@ protected:
 	int close() override;
 	bool powerOff() override;
 	QString discoverFirst() override;
+	bool isAmbilightDevice(const QString& portName);
+	bool hasSerialResponse(const QString& portName);
 	QJsonObject discover(const QJsonObject& params) override;
 	int writeBytes(const qint64 size, const uint8_t* data);
 
@@ -33,10 +35,13 @@ public slots:
 	bool waitForExitStats();
 
 private:
+	static QMutex s_portAccessMutex;
 	bool tryOpen(int delayAfterConnect_ms);
 	bool _isAutoDeviceName;
 	int _delayAfterConnect_ms;
 	int _frameDropCounter;
 	bool _espHandshake;
 	bool _forceSerialDetection;
+	QString _ledType;
+	// static QMap<QString, QString> s_lastSuccessPorts;
 };

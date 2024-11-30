@@ -119,6 +119,28 @@ void  AmbilightAppManager::setInstanceEffect(int instance, QString effectName, i
 		}
 }
 
+void AmbilightAppManager::setInstanceBrightness(int instance, int brightness)
+{
+    for (const auto& selInstance : _runningInstances)
+        if (instance == -1 || selInstance->getInstanceIndex() == instance)
+        {
+            QJsonObject adjustment;
+            adjustment["brightness"] = brightness;
+            QUEUE_CALL_1(selInstance.get(), updateAdjustments, QJsonObject, adjustment);
+        }
+}
+
+void AmbilightAppManager::setInstanceComponentState(int instance, ambilightapp::Components component, bool enable)
+{
+    for (const auto& selInstance : _runningInstances)
+    {
+        if (instance == -1 || selInstance->getInstanceIndex() == instance)
+        {
+            emit selInstance->SignalRequestComponent(component, enable);
+        }
+    }
+}
+
 void AmbilightAppManager::clearInstancePriority(int instance, int priority)
 {
 	for (const auto& selInstance : _runningInstances)

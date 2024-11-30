@@ -84,6 +84,8 @@ public slots:
 
 	void setInstanceColor(int instance, int priority, ColorRgb ledColors, int timeout_ms);
 	void setInstanceEffect(int instance, QString effectName, int priority);
+	void setInstanceBrightness(int instance, int brightness);
+	void setInstanceComponentState(int instance, ambilightapp::Components component, bool enable);
 	void clearInstancePriority(int instance, int priority);
 	std::list<EffectDefinition> getEffects();
 
