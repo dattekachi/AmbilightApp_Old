@@ -174,13 +174,13 @@ void LedDevice::setupRetry(int interval)
 		connect(_retryTimer.get(), &QTimer::timeout, this, [this](){
 				if (_currentRetry > 0 && !_signalTerminate)
 				{
-					Warning(_log, "Thiết bị LED chưa sẵn sàng... đang thử kết nối lại (lần %i/%i).", (_maxRetry - _currentRetry + 1), _maxRetry);
+					Warning(_log, "LED device not ready... retrying connection (attempt %i/%i).", (_maxRetry - _currentRetry + 1), _maxRetry);
 					_currentRetry--;
 					enableDevice(true);
 				}
 				else
 				{
-					Error(_log, "Thiết bị LED chưa sẵn sàng... đã dừng thử lại.");
+					Error(_log, "LED device not ready... stopped retrying.");
 					stopRetryTimer();
 					
 					// Thêm theo dõi thay đổi cổng USB sau khi hết retry

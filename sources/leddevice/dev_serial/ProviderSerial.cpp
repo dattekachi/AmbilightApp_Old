@@ -152,17 +152,17 @@ int ProviderSerial::close()
 		}
 
 
-		if (_espHandshake)
-		{
-			QTimer::singleShot(200, this, [this]() { if (_serialPort->isOpen()) EspTools::goingSleep(_serialPort); });
-			EspTools::goingSleep(_serialPort);
+		// if (_espHandshake)
+		// {
+		QTimer::singleShot(200, this, [this]() { if (_serialPort->isOpen()) EspTools::goingSleep(_serialPort); });
+		EspTools::goingSleep(_serialPort);
 
-			for (int i = 0; i < 6 && _serialPort->isOpen(); i++)
-			{
-				if (_serialPort->waitForReadyRead(100) && waitForExitStats())
-					break;
-			}
+		for (int i = 0; i < 6 && _serialPort->isOpen(); i++)
+		{
+			if (_serialPort->waitForReadyRead(100) && waitForExitStats())
+				break;
 		}
+		// }
 
 		_serialPort->close();
 
