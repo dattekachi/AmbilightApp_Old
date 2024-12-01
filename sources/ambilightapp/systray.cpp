@@ -309,23 +309,36 @@ void SysTray::setColor(const QColor& color)
 
 void SysTray::showColorDialog()
 {
-	if (_colorDlg == nullptr)
-	{
-		_colorDlg = new QColorDialog();
-		_colorDlg->setOptions(QColorDialog::NoButtons);
-		connect(_colorDlg, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(setColor(const QColor&)));
-	}
+    if (_colorDlg == nullptr)
+    {
+        _colorDlg = new QColorDialog();
+        
+        #ifdef __APPLE__
+            _colorDlg->setOption(QColorDialog::DontUseNativeDialog);
+            _colorDlg->setOption(QColorDialog::ShowAlphaChannel, false);
+        #else
+            _colorDlg->setOptions(QColorDialog::NoButtons);
+        #endif
+        
+        connect(_colorDlg, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(setColor(const QColor&)));
+        connect(_colorDlg, SIGNAL(colorSelected(const QColor&)), this, SLOT(setColor(const QColor&)));
+    }
 
-	if (_colorDlg->isVisible())
-	{
-		_colorDlg->hide();
-	}
-	else
-	{
-		_colorDlg->show();
-		_colorDlg->raise();
-		_colorDlg->activateWindow();
-	}
+    if (_colorDlg->isVisible())
+    {
+        _colorDlg->hide();
+    }
+    else
+    {
+        #ifdef __APPLE__
+            _colorDlg->setWindowFlags(Qt::WindowStaysOnTopHint);
+            _colorDlg->exec();
+        #else
+            _colorDlg->show();
+            _colorDlg->raise();
+            _colorDlg->activateWindow();
+        #endif
+    }
 }
 
 void SysTray::settings()
