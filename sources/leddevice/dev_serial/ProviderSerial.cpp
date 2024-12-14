@@ -368,7 +368,7 @@ QString ProviderSerial::discoverFirst()
         {
             quint16 vendor = port.vendorIdentifier();
             quint16 prodId = port.productIdentifier();
-            bool isCH340 = (vendor == 0x1a86 && prodId == 0x7523);
+            bool isCH340 = (vendor == 0x1a86 && prodId == 0x7523) || (vendor == 0x403 && prodId == 0x6001);
             
             if (isCH340)
             {
@@ -379,7 +379,7 @@ QString ProviderSerial::discoverFirst()
     
     if (ch340Ports.isEmpty())
     {
-        Debug(_log, "No CH340 devices found");
+        Debug(_log, "No devices found");
         nextPortIndex = 0;
         return "";
     }
