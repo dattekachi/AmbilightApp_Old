@@ -232,10 +232,10 @@ bool ProviderSerial::tryOpen(int delayAfterConnect_ms)
 				return false;
 			}
 
+			disconnect(_serialPort, &QSerialPort::readyRead, nullptr, nullptr);
+
 			if (_espHandshake)
 			{
-				disconnect(_serialPort, &QSerialPort::readyRead, nullptr, nullptr);
-
 				EspTools::initializeEsp(_serialPort, serialPortInfo, _log, _forceSerialDetection);
 			}
 		}
