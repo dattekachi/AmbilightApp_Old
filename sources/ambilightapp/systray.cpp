@@ -167,7 +167,7 @@ void SysTray::createTrayIcon()
 	connect(_openscreencapAction, &QAction::triggered, this, &SysTray::openScreenCap);
 #endif
 
-	_clearAction = new QAction(tr("&Theo màu màn hình"));
+	_clearAction = new QAction(tr("&Xóa màu sắc, hiệu ứng"));
 	_clearAction->setIcon(QPixmap(":/clear.svg"));
 	connect(_clearAction, &QAction::triggered, this, &SysTray::clearEfxColor);
 

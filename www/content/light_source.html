@@ -5,6 +5,7 @@
 		<div class="col-lg-5" id="layout_intro"></div>
 	</div>
 	<div class="row">
+		<!-- led configuration -->
 		<div class="col-7">
 			<div class="card card-default">
 				<div class="card-header form-group" id="instTarget3">
@@ -36,32 +37,6 @@
 				</div>
 				<div class="card-footer" style="text-align: right;">
 					<button id="btn_submit_controller" class="btn btn-primary"><svg data-src="svg/button_save.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="general_button_savesettings">Save Settings</span></button>
-				</div>
-			</div>
-		</div>
-		<!-- accordion -->
-		<div class="col-5" id="led_zoom_panel">
-			<div class="card card-default">
-				<div class="card-header" id="instTarget2">
-					<h4 class="card-title"><svg data-src="svg/live_preview.svg" width="18" height="18" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="conf_leds_layout_peview">LED Layout preview</span></h4>
-				</div>
-				<div class="card-body" id="visualCreatorPanel">
-					<p id="previewledcount" style="font-weight: bold;"></p>
-					<!-- <p id="previewledpower" style="font-weight: bold;"></p> -->
-					<div id="led_vis_help"></div>
-					<!-- <p data-i18n="conf_leds_layout_context" style="font-weight: bold;"></p> -->
-					<div class="col-lg-12 st_helper" style="padding-left: 0px; padding-right: 0px;">
-						<div id="leds_preview"></div>
-					</div>
-				</div>
-				<div class="card-footer">
-					<button type="button" class="btn btn-danger" id="leds_prev_toggle_num"><svg data-src="svg/light_source_show_numbers.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="main_ledsim_btn_togglelednumber">toggle led numbers</span></button>
-					<button type="button" class="btn btn-primary" id="showAdvancedOptions">
-						<svg data-src="svg/light_source_frame_layout.svg" fill="currentColor" class="svg4ambilightapp"></svg>
-						<span>Bố cục tùy chỉnh</span>
-					</button>
-					<!-- <button type="button" class="btn btn-primary" id="leds_prev_checklist"><svg data-src="svg/button_help.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="conf_leds_layout_btn_checklist">toggle led numbers</span></button> -->
-					<!-- <button type="button" class="btn btn-warning" id="leds_prev_zoom"><svg id="cmd_zoom_in_icon" data-src="svg/button_zoom.svg" fill="currentColor" class="svg4ambilightapp"></svg><svg id="cmd_zoom_out_icon" data-src="svg/button_zoom_out.svg" fill="currentColor" class="svg4ambilightapp d-none"></svg><span data-i18n="conf_leds_layout_btn_zoom">zoom</span></button> -->
 				</div>
 			</div>
 		</div>
@@ -590,6 +565,32 @@
 							<button type="button" class="btn btn-primary pull-right" id="leds_custom_save"><svg data-src="svg/button_save.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="conf_leds_layout_button_savelay">Save layout</span></button>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+		<!-- accordion -->
+		<div class="col-5" id="led_zoom_panel">
+			<div class="card card-default">
+				<div class="card-header" id="instTarget2">
+					<h4 class="card-title"><svg data-src="svg/live_preview.svg" width="18" height="18" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="conf_leds_layout_peview">LED Layout preview</span></h4>
+				</div>
+				<div class="card-body" id="visualCreatorPanel">
+					<p id="previewledcount" style="font-weight: bold;"></p>
+					<!-- <p id="previewledpower" style="font-weight: bold;"></p> -->
+					<div id="led_vis_help"></div>
+					<!-- <p data-i18n="conf_leds_layout_context" style="font-weight: bold;"></p> -->
+					<div class="col-lg-12 st_helper" style="padding-left: 0px; padding-right: 0px;">
+						<div id="leds_preview"></div>
+					</div>
+				</div>
+				<div class="card-footer">
+					<button type="button" class="btn btn-danger" id="leds_prev_toggle_num"><svg data-src="svg/light_source_show_numbers.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="main_ledsim_btn_togglelednumber">toggle led numbers</span></button>
+					<button type="button" class="btn btn-primary" id="showAdvancedOptions">
+						<svg data-src="svg/light_source_frame_layout.svg" fill="currentColor" class="svg4ambilightapp"></svg>
+						<span>Bố cục tùy chỉnh</span>
+					</button>
+					<!-- <button type="button" class="btn btn-primary" id="leds_prev_checklist"><svg data-src="svg/button_help.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="conf_leds_layout_btn_checklist">toggle led numbers</span></button> -->
+					<!-- <button type="button" class="btn btn-warning" id="leds_prev_zoom"><svg id="cmd_zoom_in_icon" data-src="svg/button_zoom.svg" fill="currentColor" class="svg4ambilightapp"></svg><svg id="cmd_zoom_out_icon" data-src="svg/button_zoom_out.svg" fill="currentColor" class="svg4ambilightapp d-none"></svg><span data-i18n="conf_leds_layout_btn_zoom">zoom</span></button> -->
 				</div>
 			</div>
 		</div>

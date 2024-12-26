@@ -72,7 +72,10 @@
 			"enum" : [153600, 1000000],
 			"default" : 1000000,
 			"options" : {
-				"enum_titles" : ["153600", "1000000"]
+				"enum_titles" : ["153600", "1000000"],
+				"dependencies": {
+					"espHandshake": true
+				}
 			},
 			"propertyOrder" : 6
 		},
