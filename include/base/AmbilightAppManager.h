@@ -117,6 +117,8 @@ private:
 	void stopAllonExit();
 
 	bool isInstAllowed(quint8 inst) const { return (inst > 0); }
+	bool addMusicDevice(const quint8 inst);
+    bool removeMusicDevice(const quint8 inst);
 
 private:
 	

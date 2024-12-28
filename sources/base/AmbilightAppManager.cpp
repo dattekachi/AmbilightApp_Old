@@ -297,6 +297,247 @@ void AmbilightAppManager::hibernate(bool wakeUp, ambilightapp::SystemComponent s
 	}
 }
 
+QString removeDiacritics(const QString& str) {
+    QString normalized = str.normalized(QString::NormalizationForm_D);
+    QString result;
+    for (const QChar &ch : normalized) {
+        if (ch.category() != QChar::Mark_NonSpacing) {
+            result.append(ch);
+        }
+    }
+    return result;
+}
+
+bool AmbilightAppManager::addMusicDevice(const quint8 inst)
+{
+    Info(_log, "Adding music device for instance %d", inst);
+
+    // Kiểm tra instance có tồn tại không
+    if (!_instanceTable->instanceExist(inst)) {
+        Error(_log, "Instance %d doesn't exist", inst);
+        return false;
+    }
+
+    // Lấy tên instance từ instance table
+    QString instanceName = _instanceTable->getNamebyIndex(inst);
+    QString deviceId = removeDiacritics(instanceName).toLower().replace(" ", "-");
+
+    Info(_log, "Creating device config for: %s (id: %s)", 
+         QSTRING_CSTR(instanceName), QSTRING_CSTR(deviceId));
+
+    // Kiểm tra và tạo thư mục .mls
+    QString configDir = QDir::homePath() + "/.mls";
+    QDir dir(configDir);
+    if (!dir.exists()) {
+        Info(_log, "Creating config directory: %s", QSTRING_CSTR(configDir));
+        dir.mkpath(".");
+    }
+
+    // Đọc hoặc tạo file config.json
+    QString configPath = configDir + "/config.json";
+    QFile file(configPath);
+    QJsonObject config;
+
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QByteArray data = file.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        config = doc.object();
+        file.close();
+    }
+
+	// Lấy LED count từ instance settings
+    auto instance = getAmbilightAppInstance(inst);
+    if (!instance) {
+        Error(_log, "Cannot get instance %d", inst);
+        return false;
+    }
+
+	// Lấy LED type từ device settings của instance
+   	QString ledType = instance->getSetting(settings::type::DEVICE).object()["ledType"].toString("screen");
+
+    QJsonArray ledsConfig = instance->getSetting(settings::type::LEDS).array();
+    int ledCount = ledsConfig.size();
+    
+    if (ledCount <= 0) {
+        Error(_log, "Invalid LED count from instance config: %d", ledCount);
+        return false;
+    }
+
+    Info(_log, "Found %d LEDs for instance %d", ledCount, inst);
+
+    // Tạo device config
+    QJsonObject deviceConfig;
+    deviceConfig["baudrate"] = 1000000;
+    deviceConfig["center_offset"] = 0;
+    deviceConfig["color_order"] = "RGB";
+    deviceConfig["com_port"] = "auto";
+    deviceConfig["icon_name"] = "mdi:led-strip";
+    deviceConfig["led_type"] = ledType;
+    deviceConfig["name"] = instanceName;
+    deviceConfig["pixel_count"] = ledCount;
+    deviceConfig["refresh_rate"] = 62;
+
+    QJsonObject device;
+    device["config"] = deviceConfig;
+    device["id"] = deviceId;
+    device["type"] = "ambilightusb";
+
+    // Thêm device vào config nếu chưa tồn tại
+    QJsonArray devices = config["devices"].toArray();
+    QJsonArray virtuals = config["virtuals"].toArray();
+    bool exists = false;
+    
+    for (const auto& dev : devices) {
+        if (dev.toObject()["id"].toString() == deviceId) {
+            exists = true;
+            break;
+        }
+    }
+
+    if (!exists) {
+        // Thêm device config
+        devices.append(device);
+        config["devices"] = devices;
+
+        // Tạo virtual device config
+        QJsonObject virtualConfig;
+        virtualConfig["auto_generated"] = false;
+        
+        QJsonObject vConfig;
+        vConfig["center_offset"] = 0;
+        vConfig["frequency_max"] = 15000;
+        vConfig["frequency_min"] = 20;
+        vConfig["grouping"] = 1;
+        vConfig["icon_name"] = "mdi:led-strip";
+        vConfig["mapping"] = "span";
+        vConfig["max_brightness"] = 1.0;
+        vConfig["name"] = instanceName;
+        vConfig["preview_only"] = false;
+        vConfig["rows"] = 1;
+        vConfig["transition_mode"] = "Add";
+        vConfig["transition_time"] = 0.4;
+        virtualConfig["config"] = vConfig;
+
+        // Thêm effect config
+        QJsonObject effectConfig;
+        effectConfig["background_brightness"] = 1.0;
+        effectConfig["background_color"] = "#000000";
+        effectConfig["blur"] = 2.0;
+        effectConfig["brightness"] = 1.0;
+        effectConfig["fix_hues"] = true;
+        effectConfig["flip"] = false;
+        effectConfig["gradient"] = "linear-gradient(90deg, rgb(255, 0, 0) 0%, rgb(255, 120, 0) 14%, rgb(255, 200, 0) 28%, rgb(0, 255, 0) 42%, rgb(0, 199, 140) 56%, rgb(0, 0, 255) 70%, rgb(128, 0, 128) 84%, rgb(255, 0, 178) 98%)";
+        effectConfig["gradient_roll"] = 0.0;
+        effectConfig["mirror"] = false;
+        effectConfig["reactivity"] = 0.4;
+        effectConfig["speed"] = 0.35;
+
+        QJsonObject effect;
+        effect["config"] = effectConfig;
+        effect["type"] = "melt";
+        virtualConfig["effect"] = effect;
+
+        // Thêm effects
+        QJsonObject meltEffect;
+        meltEffect["config"] = effectConfig;
+        meltEffect["type"] = "melt";
+        
+        QJsonObject effects;
+        effects["melt"] = meltEffect;
+        virtualConfig["effects"] = effects;
+
+        virtualConfig["id"] = deviceId;
+        virtualConfig["is_device"] = deviceId;
+
+        // Thêm segments
+        QJsonArray segmentArray;
+        QJsonArray segment;
+        segment.append(deviceId);
+        segment.append(0);
+        segment.append(deviceConfig["pixel_count"].toInt() - 1);
+        segment.append(false);
+        segmentArray.append(segment);
+        virtualConfig["segments"] = segmentArray;
+
+        virtuals.append(virtualConfig);
+        config["virtuals"] = virtuals;
+
+        // Ghi file
+        if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QJsonDocument saveDoc(config);
+            file.write(saveDoc.toJson(QJsonDocument::Indented));
+            file.close();
+            Info(_log, "Device and virtual config added successfully");
+            return true;
+        }
+        Error(_log, "Failed to write config file");
+        return false;
+    }
+
+    Info(_log, "Device already exists");
+    return true;
+}
+
+bool AmbilightAppManager::removeMusicDevice(const quint8 inst)
+{
+    Info(_log, "Removing music device for instance %d", inst);
+
+    // Kiểm tra instance có tồn tại không
+    if (!_instanceTable->instanceExist(inst)) {
+        Error(_log, "Instance %d doesn't exist", inst);
+        return false;
+    }
+
+    // Lấy deviceId
+    QString instanceName = _instanceTable->getNamebyIndex(inst);
+    QString deviceId = removeDiacritics(instanceName).toLower().replace(" ", "-");
+
+    // Đọc file config
+    QString configPath = QDir::homePath() + "/.mls/config.json";
+    QFile file(configPath);
+    
+    if (!file.exists() || !file.open(QIODevice::ReadOnly)) {
+        Error(_log, "Config file not found or cannot be opened");
+        return false;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+    QJsonObject config = doc.object();
+
+    // Xóa device từ mảng devices
+    QJsonArray devices = config["devices"].toArray();
+    for (int i = 0; i < devices.size(); i++) {
+        if (devices[i].toObject()["id"].toString() == deviceId) {
+            devices.removeAt(i);
+            break;
+        }
+    }
+    config["devices"] = devices;
+
+    // Xóa virtual device từ mảng virtuals
+    QJsonArray virtuals = config["virtuals"].toArray();
+    for (int i = 0; i < virtuals.size(); i++) {
+        if (virtuals[i].toObject()["id"].toString() == deviceId) {
+            virtuals.removeAt(i);
+            break;
+        }
+    }
+    config["virtuals"] = virtuals;
+
+    // Ghi lại file config
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QJsonDocument saveDoc(config);
+        file.write(saveDoc.toJson(QJsonDocument::Indented));
+        file.close();
+        Info(_log, "Device and virtual config removed successfully");
+        return true;
+    }
+
+    Error(_log, "Failed to write config file");
+    return false;
+}
+
 bool AmbilightAppManager::startInstance(quint8 inst, QObject* caller, int tan, bool disableOnStartup)
 {
 	if (_instanceTable->instanceExist(inst))
@@ -366,6 +607,8 @@ bool AmbilightAppManager::stopInstance(quint8 instance)
 
 			emit SignalInstanceStateChanged(InstanceState::STOP, instance);
 			emit SignalInstancesListChanged();
+
+			removeMusicDevice(instance);
 
 			return true;
 		}
@@ -446,6 +689,16 @@ void AmbilightAppManager::handleInstanceJustStarted()
 			emit SignalStartInstanceResponse(def.caller, def.tan);
 			_pendingRequests.remove(instance);
 		}
+		addMusicDevice(instance);
+		// Kết nối signal khi settings thay đổi
+        connect(runningInstance.get(), &AmbilightAppInstance::SignalInstanceSettingsChanged, 
+                this, [this, instance](settings::type type, const QJsonDocument& config) {
+            if (type == settings::type::LEDS) {
+                // Cập nhật lại music device config khi LED count thay đổi
+                removeMusicDevice(instance);
+                addMusicDevice(instance);
+            }
+        });
 	}
 	else
 		Error(_log, "Could not find instance '%s (index: %i)' in the starting list",
