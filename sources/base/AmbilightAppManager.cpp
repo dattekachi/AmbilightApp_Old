@@ -27,6 +27,7 @@
 
 #ifndef PCH_ENABLED
 	#include <QThread>
+	#include <QDir>
 #endif
 
 #include <QStringList>
