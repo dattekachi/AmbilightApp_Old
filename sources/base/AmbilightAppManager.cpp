@@ -331,8 +331,14 @@ bool AmbilightAppManager::addMusicDevice(const quint8 inst)
 	auto instance = getAmbilightAppInstance(inst);
     QString output = instance->getSetting(settings::type::DEVICE).object()["output"].toString("auto");
 
+	// Lấy handshake từ device settings của instance
+    bool handshake = instance->getSetting(settings::type::DEVICE).object()["espHandshake"].toBool(false);
+
 	// Lấy LED type từ device settings của instance
    	QString ledType = instance->getSetting(settings::type::DEVICE).object()["ledType"].toString("screen");
+
+	// Lấy baudrate từ device settings của instance
+    int baudrate = instance->getSetting(settings::type::DEVICE).object()["rate"].toInt(1000000);
 
 	// Lấy tên instance từ instance table
     QString instanceName = _instanceTable->getNamebyIndex(inst);
@@ -354,10 +360,11 @@ bool AmbilightAppManager::addMusicDevice(const quint8 inst)
 
     // Tạo device config
     QJsonObject deviceConfig;
-    deviceConfig["baudrate"] = 1000000;
+    deviceConfig["baudrate"] = baudrate;
     deviceConfig["center_offset"] = 0;
     deviceConfig["color_order"] = "RGB";
     deviceConfig["com_port"] = output;
+	deviceConfig["handshake"] = handshake;
     deviceConfig["icon_name"] = "mdi:led-strip";
     deviceConfig["led_type"] = ledType;
     deviceConfig["name"] = instanceName;
