@@ -62,7 +62,7 @@ bool ProviderSerial::init(const QJsonObject& deviceConfig)
 			_deviceName = _deviceName.mid(5);
 
 		_isAutoDeviceName = _deviceName.toLower() == "auto";
-		_baudRate_Hz = deviceConfig["rate"].toInt();
+		_baudRate_Hz = deviceConfig["rate"].toInt(1000000);
 		_delayAfterConnect_ms = deviceConfig["delayAfterConnect"].toInt(1000);
 		_espHandshake = deviceConfig["espHandshake"].toBool(false);
 		_maxRetry = _devConfig["maxRetry"].toInt(10);
@@ -444,7 +444,7 @@ bool ProviderSerial::isAmbilightDevice(const QString& portName)
 	if (testPort.open(QIODevice::ReadWrite))
 	{
 		testPort.setBaudRate(_baudRate_Hz);
-		
+		testPort.clear();
 		testPort.write("T");
 		testPort.flush();
 		
@@ -531,14 +531,24 @@ QJsonObject ProviderSerial::discover(const QJsonObject& /*params*/)
 
 	for (const QSerialPortInfo& info : QSerialPortInfo::availablePorts())
 	{
-		deviceList.push_back(QJsonObject{
-			{ "value", info.portName() },
-			{ "name", QString("%2 (%1)").arg(info.systemLocation()).arg(info.description()) }
-		});
-
-#ifdef ENABLE_BONJOUR
 		quint16 vendor = info.vendorIdentifier();
 		quint16 prodId = info.productIdentifier();
+		
+		// Lọc chỉ hiển thị CH340 và FTDI
+		bool isCH340 = (vendor == 0x1a86 && prodId == 0x7523);
+		bool isFTDI = (vendor == 0x403 && prodId == 0x6001);
+		
+		if (isCH340 || isFTDI)
+		{
+			deviceList.push_back(QJsonObject{
+				{ "value", info.portName() },
+				{ "name", QString("%1 (%2)").arg(info.portName()).arg(info.description()) }
+			});
+		}
+
+#ifdef ENABLE_BONJOUR
+		// quint16 vendor = info.vendorIdentifier();
+		// quint16 prodId = info.productIdentifier();
 		DiscoveryRecord newRecord;
 
 		if ((vendor == 0x303a) && (prodId == 0x80c2))
@@ -551,7 +561,8 @@ QJsonObject ProviderSerial::discover(const QJsonObject& /*params*/)
 		}
 		else if ((vendor == 0x303a) ||
 			((vendor == 0x10c4) && (prodId == 0xea60)) ||
-			((vendor == 0x1A86) && (prodId == 0x7523 || prodId == 0x55d4)))
+			((vendor == 0x1A86) && (prodId == 0x7523 || prodId == 0x55d4)) ||
+            ((vendor == 0x403) && (prodId == 0x6001)))
 		{
 			newRecord.type = DiscoveryRecord::Service::ESP;
 		}

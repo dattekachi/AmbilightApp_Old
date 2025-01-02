@@ -344,7 +344,7 @@ $(document).ready(function ()
 					'<div class="row border-bottom text-primary ambilightapp-vcenter" style="min-height:3em;">'+
 						'<div class="col-4 col-md-3 fw-bold ps-1 ps-md-4 pe-2 pe-md-1" data-i18n="edt_conf_stream_device_title">Thiết bị</div>'+
 						'<div class="col-4 col-md-4 fw-bold ps-0 pe-1 pe-md-2" data-i18n="device_address">Cổng kết nối</div>'+
-						'<div class="col-4 col-md-5 fw-bold ps-0 pe-0 pe-md-1" data-i18n="edt_dev_spec_lights_name">Giao thức</div>'+
+						'<div class="col-4 col-md-5 fw-bold ps-0 pe-0 pe-md-1" data-i18n="edt_dev_spec_lights_name">Tên cổng</div>'+
 					'</div>';
 
 		for(var i = 0; i< networkSessions.length; i++)

@@ -341,7 +341,7 @@
   "edt_conf_general_priority_expl": "Mức độ ưu tiên của thành phần này",
   "edt_conf_general_priority_title": "Kênh ưu tiên",
   "edt_conf_instC_systemEnable_expl": "Cho phép chụp hệ thống cho phiên bản phần cứng dẫn đầu này",
-  "edt_conf_instC_systemEnable_title": "Bật quét màu hệ thống",
+  "edt_conf_instC_systemEnable_title": "Bật quét màu phần mềm",
   "edt_conf_instC_v4lEnable_expl": "Cho phép chụp USB cho phiên bản phần cứng dẫn đầu này",
   "edt_conf_instC_v4lEnable_title": "Bật quét màu USB",
   "edt_conf_instCapture_heading_title": "Quét màu USB",
@@ -1243,7 +1243,13 @@
   "edt_conf_gen_disableOnLocked_expl" : "Tắt xử lý khi người dùng đã khóa hệ thống.",
   "edt_conf_gen_disableLedsStartup_title" : "Tắt đèn LED khi khởi động",
   "edt_conf_gen_disableLedsStartup_expl" : "Tắt đèn LED và tất cả các thành phần khi khởi động, bạn phải bật lại chúng theo cách thủ công trên trang chính hoặc thông qua API JSON (thành phần COMP_ALL).",
-  "update_firmware": "Cập nhật Firmware",
-  "update_firmware_title": "Cập nhật Firmware",
-  "firmware_not_supported": "Trình duyệt của bạn không hỗ trợ cập nhật firmware qua Web Serial"
+  "edt_dev_spec_typeofLed_title" : "Loại LED",
+  "edt_dev_spec_typeofLed_screen" : "Màn hình",
+  "edt_dev_spec_typeofLed_edge" : "Cạnh bàn",
+  "edt_dev_spec_typeofLed_dualScreen" : "2 LED màn hình",
+  "edt_dev_spec_typeofLed_sideScreen_title" : "Vị trí LED",
+  "edt_dev_spec_typeofLed_sideScreen_left" : "Bên trái",
+  "edt_dev_spec_typeofLed_sideScreen_right" : "Bên phải",
+  "edt_dev_spec_typeofLed_ledSize_title" : "Kích thước LED"
 }
+

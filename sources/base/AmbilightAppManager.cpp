@@ -170,7 +170,6 @@ QVector<QVariantMap> AmbilightAppManager::getInstanceData() const
 	QVector<QVariantMap> instances = _instanceTable->getAllInstances();
 	for (auto& entry : instances)
 	{
-		// add running state
 		entry["running"] = _runningInstances.contains(entry["instance"].toInt());
 	}
 	return instances;
@@ -311,32 +310,14 @@ QString removeDiacritics(const QString& str) {
 
 bool AmbilightAppManager::addMusicDevice(const quint8 inst)
 {
-    Info(_log, "Adding music device for instance %d", inst);
-
     // Kiểm tra instance có tồn tại không
     if (!_instanceTable->instanceExist(inst)) {
         Error(_log, "Instance %d doesn't exist", inst);
         return false;
     }
 
-    // Lấy tên instance từ instance table
-    QString instanceName = _instanceTable->getNamebyIndex(inst);
-    QString deviceId = removeDiacritics(instanceName).toLower().replace(" ", "-");
-
-    Info(_log, "Creating device config for: %s (id: %s)", 
-         QSTRING_CSTR(instanceName), QSTRING_CSTR(deviceId));
-
-    // Kiểm tra và tạo thư mục .mls
-    QString configDir = QDir::homePath() + "/.mls";
-    QDir dir(configDir);
-    if (!dir.exists()) {
-        Info(_log, "Creating config directory: %s", QSTRING_CSTR(configDir));
-        dir.mkpath(".");
-    }
-
-    // Đọc hoặc tạo file config.json
-    QString configPath = configDir + "/config.json";
-    QFile file(configPath);
+    // Đọc file config.json
+    QFile file(QDir::homePath() + "/.mls/config.json");
     QJsonObject config;
 
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
@@ -346,32 +327,37 @@ bool AmbilightAppManager::addMusicDevice(const quint8 inst)
         file.close();
     }
 
-	// Lấy LED count từ instance settings
-    auto instance = getAmbilightAppInstance(inst);
-    if (!instance) {
-        Error(_log, "Cannot get instance %d", inst);
-        return false;
-    }
+	// Lấy output từ device settings của instance
+	auto instance = getAmbilightAppInstance(inst);
+    QString output = instance->getSetting(settings::type::DEVICE).object()["output"].toString("auto");
 
 	// Lấy LED type từ device settings của instance
    	QString ledType = instance->getSetting(settings::type::DEVICE).object()["ledType"].toString("screen");
 
+	// Lấy tên instance từ instance table
+    QString instanceName = _instanceTable->getNamebyIndex(inst);
+    QString deviceId = removeDiacritics(instanceName).toLower().replace(" ", "-");
+    Info(_log, "Creating device config for: %s (id: %s)", 
+         QSTRING_CSTR(instanceName), QSTRING_CSTR(deviceId));
+
+	// Lấy LED count từ instance settings
+    if (!instance) {
+        Error(_log, "Cannot get instance %d", inst);
+        return false;
+    }
     QJsonArray ledsConfig = instance->getSetting(settings::type::LEDS).array();
     int ledCount = ledsConfig.size();
-    
     if (ledCount <= 0) {
         Error(_log, "Invalid LED count from instance config: %d", ledCount);
         return false;
     }
-
-    Info(_log, "Found %d LEDs for instance %d", ledCount, inst);
 
     // Tạo device config
     QJsonObject deviceConfig;
     deviceConfig["baudrate"] = 1000000;
     deviceConfig["center_offset"] = 0;
     deviceConfig["color_order"] = "RGB";
-    deviceConfig["com_port"] = "auto";
+    deviceConfig["com_port"] = output;
     deviceConfig["icon_name"] = "mdi:led-strip";
     deviceConfig["led_type"] = ledType;
     deviceConfig["name"] = instanceName;
@@ -481,8 +467,6 @@ bool AmbilightAppManager::addMusicDevice(const quint8 inst)
 
 bool AmbilightAppManager::removeMusicDevice(const quint8 inst)
 {
-    Info(_log, "Removing music device for instance %d", inst);
-
     // Kiểm tra instance có tồn tại không
     if (!_instanceTable->instanceExist(inst)) {
         Error(_log, "Instance %d doesn't exist", inst);
@@ -690,16 +674,16 @@ void AmbilightAppManager::handleInstanceJustStarted()
 			emit SignalStartInstanceResponse(def.caller, def.tan);
 			_pendingRequests.remove(instance);
 		}
-		addMusicDevice(instance);
 		// Kết nối signal khi settings thay đổi
         connect(runningInstance.get(), &AmbilightAppInstance::SignalInstanceSettingsChanged, 
                 this, [this, instance](settings::type type, const QJsonDocument& config) {
-            if (type == settings::type::LEDS) {
-                // Cập nhật lại music device config khi LED count thay đổi
+            if (type == settings::type::LEDS || type == settings::type::DEVICE) {
                 removeMusicDevice(instance);
-                addMusicDevice(instance);
+				addMusicDevice(instance);
             }
         });
+
+        addMusicDevice(instance);
 	}
 	else
 		Error(_log, "Could not find instance '%s (index: %i)' in the starting list",

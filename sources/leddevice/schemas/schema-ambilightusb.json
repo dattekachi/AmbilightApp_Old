@@ -5,11 +5,11 @@
 		"ledType" :
 		{
 			"type" : "string",
-			"title" : "Loại LED",
+			"title" : "edt_dev_spec_typeofLed_title",
 			"enum" : ["screen", "edge", "dualScreen"],
 			"default" : "screen",
 			"options" : {
-				"enum_titles" : ["Màn hình", "Cạnh bàn", "2 LED màn hình"]
+				"enum_titles" : ["edt_dev_spec_typeofLed_screen", "edt_dev_spec_typeofLed_edge", "edt_dev_spec_typeofLed_dualScreen"]
 			},
 			"required" : true,
 			"propertyOrder" : 1
@@ -17,11 +17,11 @@
 		"sideScreen" :
 		{
 			"type" : "string",
-			"title" : "Vị trí LED",
+			"title" : "edt_dev_spec_typeofLed_sideScreen_title",
 			"enum" : ["left", "right"],
 			"default" : "left",
 			"options" : {
-				"enum_titles" : ["Bên trái", "Bên phải"],
+				"enum_titles" : ["edt_dev_spec_typeofLed_sideScreen_left", "edt_dev_spec_typeofLed_sideScreen_right"],
 				"dependencies": {
 					"ledType": "dualScreen"
 				}
@@ -32,7 +32,7 @@
 		"screenSize" :
 		{
 			"type" : "string",
-			"title" : "Kích thước LED",
+			"title" : "edt_dev_spec_typeofLed_ledSize_title",
 			"enum" : ["13", "17", "19", "20", "22", "24", "25", "27", "28", "29", "30", "32", "34"],
 			"default" : "27",
 			"options" : {
@@ -47,7 +47,7 @@
 		"edgeSize" :
 		{
 			"type" : "string",
-			"title" : "Kích thước LED",
+			"title" : "edt_dev_spec_typeofLed_ledSize_title",
 			"enum" : ["1m", "1m2", "1m4", "1m6", "1m8", "2m"],
 			"default" : "1m2",
 			"options" : {
@@ -77,6 +77,7 @@
 					"espHandshake": true
 				}
 			},
+			"required" : true,
 			"propertyOrder" : 6
 		},
 		"espHandshake" :
