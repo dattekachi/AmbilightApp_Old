@@ -436,7 +436,7 @@ bool ProviderSerial::isAmbilightDevice(const QString& portName)
 	testPort.setPortName(portName);
 
 	QString searchType = _ledType;
-    if (_ledType == "dualScreen")
+    if (_ledType == "dualscreen")
         searchType = "screen";
 	
 	Debug(_log, "Checking port: %s for LED type: %s", QSTRING_CSTR(portName), QSTRING_CSTR(searchType));

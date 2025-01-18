@@ -6,7 +6,7 @@
 		{
 			"type" : "string",
 			"title" : "edt_dev_spec_typeofLed_title",
-			"enum" : ["screen", "edge", "dualScreen"],
+			"enum" : ["screen", "edge", "dualscreen"],
 			"default" : "screen",
 			"options" : {
 				"enum_titles" : ["edt_dev_spec_typeofLed_screen", "edt_dev_spec_typeofLed_edge", "edt_dev_spec_typeofLed_dualScreen"]
@@ -23,7 +23,7 @@
 			"options" : {
 				"enum_titles" : ["edt_dev_spec_typeofLed_sideScreen_left", "edt_dev_spec_typeofLed_sideScreen_right"],
 				"dependencies": {
-					"ledType": "dualScreen"
+					"ledType": "dualscreen"
 				}
 			},
 			"required" : true,
@@ -38,7 +38,7 @@
 			"options" : {
 				"enum_titles" : ["13inch", "17inch", "19inch", "20inch", "22inch", "24inch", "25inch", "27inch", "28inch", "29inch", "30inch", "32inch", "34inch"],
 				"dependencies": {
-					"ledType": ["screen", "dualScreen"]
+					"ledType": ["screen", "dualscreen"]
 				}
 			},
 			"required" : true,
