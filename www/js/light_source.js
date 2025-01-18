@@ -702,7 +702,7 @@ $(document).ready(function()
 		const ledType = conf_editor.getEditor("root.specificOptions.ledType").getValue();
 		
 		// Xử lý LED 2 màn hình
-		if (ledType === "dualScreen") {
+		if (ledType === "dualscreen") {
 			const sideScreen = conf_editor.getEditor("root.specificOptions.sideScreen").getValue();
 			
 			if (sideScreen === "right") {
@@ -720,7 +720,7 @@ $(document).ready(function()
 				$('#ip_cl_pbrh').val(50);
 			}
 		} else {
-			// Khôi phục giá trị mặc định khi không phải dualScreen
+			// Khôi phục giá trị mặc định khi không phải dualscreen
 			$('#ip_cl_ptlh').val(0);
 			$('#ip_cl_pblh').val(0);
 			$('#ip_cl_ptrh').val(100);
@@ -729,7 +729,7 @@ $(document).ready(function()
 		
 		let selectedSize;
 		// Lấy giá trị kích thước dựa vào ledType
-		if (ledType === "screen" || ledType === "dualScreen") {
+		if (ledType === "screen" || ledType === "dualscreen") {
 			selectedSize = conf_editor.getEditor("root.specificOptions.screenSize").getValue();
 		} else {
 			selectedSize = conf_editor.getEditor("root.specificOptions.edgeSize").getValue();
@@ -769,7 +769,7 @@ $(document).ready(function()
 		const ledType = conf_editor.getEditor("root.specificOptions.ledType").getValue();
 		let selectedSize;
 		
-		if (ledType === "screen" || ledType === "dualScreen") {
+		if (ledType === "screen" || ledType === "dualscreen") {
 		selectedSize = conf_editor.getEditor("root.specificOptions.screenSize").getValue();
 		} else {
 		selectedSize = conf_editor.getEditor("root.specificOptions.edgeSize").getValue();
