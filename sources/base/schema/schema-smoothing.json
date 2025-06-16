@@ -24,6 +24,15 @@
 			"required" : true,
 			"propertyOrder" : 2
 		},
+		"advanced" :
+		{
+			"type" : "boolean",
+			"format": "checkbox",
+			"title" : "edt_conf_smooth_advanced_title",
+			"default" : false,
+			"required" : true,
+			"propertyOrder" : 3
+		},
 		"time_ms" :
 		{
 			"type" : "integer",
@@ -34,8 +43,13 @@
 			"maximum": 5000,
 			"default" : 150,
 			"append" : "edt_append_ms",
+			"options": {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 3
+			"propertyOrder" : 4
 		},
 		"updateFrequency" :
 		{
@@ -47,8 +61,13 @@
 			"maximum" : 200.0,
 			"default" : 50,
 			"append" : "edt_append_hz",
+			"options": {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 4
+			"propertyOrder" : 5
 		},
 		"lowLightAntiFlickeringTreshold" :
 		{
@@ -59,8 +78,13 @@
 			"minimum" : 0,
 			"maximum": 255,
 			"default" : 32,
+			"options": {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 5
+			"propertyOrder" : 6
 		},		
 		"lowLightAntiFlickeringValue" :
 		{
@@ -77,7 +101,7 @@
 				}
 			},
 			"required" : true,
-			"propertyOrder" : 6
+			"propertyOrder" : 7
 		},
 		"lowLightAntiFlickeringTimeout" :
 		{
@@ -95,7 +119,7 @@
 				}
 			},
 			"required" : true,
-			"propertyOrder" : 7
+			"propertyOrder" : 8
 		},
 		"continuousOutput" :
 		{
@@ -103,8 +127,13 @@
 			"format": "checkbox",
 			"title" : "edt_conf_smooth_continuousOutput_title",
 			"default" : true,
+			"options": {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 10
+			"propertyOrder" : 9
 		}
 	},
 	"additionalProperties" : false

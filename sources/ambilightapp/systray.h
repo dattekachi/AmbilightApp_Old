@@ -39,6 +39,7 @@ public slots:
 	void setBrightness(int brightness);
 	void toggleLedState();
 	void selectInstance();
+	void cleanup();
 
 private slots:
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -48,6 +49,8 @@ private slots:
 	///
 	void signalInstanceStateChangedHandler(InstanceState state, quint8 instance, const QString& name);
 	void signalSettingsChangedHandler(settings::type type, const QJsonDocument& data);
+
+    void updateBrightnessMenu();
 
 private:
 	void createTrayIcon();

@@ -13,6 +13,9 @@
 #include <QEventLoop>
 #include <QThread>
 #include <QSerialPort>
+#include <QSettings>
+#include <QMutex>
+#include <QMutexLocker>
 
 #include <utils/InternalClock.h>
 #include <utils/GlobalSignals.h>
@@ -25,8 +28,9 @@ constexpr std::chrono::milliseconds OPEN_TIMEOUT{ 5000 };		// device open timeou
 const int MAX_WRITE_TIMEOUTS = 5;	// Maximum number of allowed timeouts
 const int NUM_POWEROFF_WRITE_BLACK = 3;	// Number of write "BLACK" during powering off
 
-// QMap<QString, QString> ProviderSerial::s_lastSuccessPorts;
+QMap<QString, QString> ProviderSerial::s_lastSuccessPorts;
 QMutex ProviderSerial::s_portAccessMutex;
+QSettings ProviderSerial::s_settings("HKEY_CURRENT_USER\\Software\\AmbilightApp", QSettings::NativeFormat);
 
 ProviderSerial::ProviderSerial(const QJsonObject& deviceConfig)
 	: LedDevice(deviceConfig)
@@ -39,6 +43,25 @@ ProviderSerial::ProviderSerial(const QJsonObject& deviceConfig)
 	, _forceSerialDetection(false)
 	, _ledType("screen")
 {
+	// Đọc thông tin cổng đã lưu khi khởi tạo instance đầu tiên
+	static bool isFirstInstance = true;
+	if (isFirstInstance)
+	{
+		QMutexLocker locker(&s_portAccessMutex);
+		s_settings.beginGroup("Instances");
+		QStringList instances = s_settings.childGroups();
+		for (const QString& instance : instances)
+		{
+			s_settings.beginGroup(instance);
+			if (s_settings.contains("Port"))
+			{
+				s_lastSuccessPorts[instance] = s_settings.value("Port").toString();
+			}
+			s_settings.endGroup();
+		}
+		s_settings.endGroup();
+		isFirstInstance = false;
+	}
 }
 
 bool ProviderSerial::init(const QJsonObject& deviceConfig)
@@ -68,6 +91,8 @@ bool ProviderSerial::init(const QJsonObject& deviceConfig)
 		_maxRetry = _devConfig["maxRetry"].toInt(10);
 		_forceSerialDetection = deviceConfig["forceSerialDetection"].toBool(false);
 		_ledType = deviceConfig["ledType"].toString("screen");
+
+		_instanceKey = QString("Instance_%1").arg(this->getInstanceIndex());
 
 		Debug(_log, "Device name   : %s", QSTRING_CSTR(_deviceName));
 		Debug(_log, "Auto selection: %d", _isAutoDeviceName);
@@ -238,6 +263,25 @@ bool ProviderSerial::tryOpen(int delayAfterConnect_ms)
 			{
 				EspTools::initializeEsp(_serialPort, serialPortInfo, _log, _forceSerialDetection);
 			}
+
+			// Lưu cổng kết nối thành công vào Registry nếu khác với cổng đã lưu
+			QString savedPort = s_lastSuccessPorts.value(_instanceKey);
+			if (savedPort != _deviceName)
+			{
+				s_lastSuccessPorts[_instanceKey] = _deviceName;
+				QMutexLocker locker(&s_portAccessMutex);
+				s_settings.beginGroup("Instances");
+				s_settings.beginGroup(_instanceKey);
+				s_settings.setValue("Port", _deviceName);
+				s_settings.endGroup();
+				s_settings.endGroup();
+				s_settings.sync();
+				Info(_log, "Saved new successful port connection: %s for instance %s", 
+					QSTRING_CSTR(_deviceName), QSTRING_CSTR(_instanceKey));
+				
+				// Phát signal khi cổng thay đổi thông qua GlobalSignals
+				emit GlobalSignals::getInstance()->SignalPortChanged(_instanceKey, _deviceName);
+			}
 		}
 		else
 		{
@@ -249,7 +293,6 @@ bool ProviderSerial::tryOpen(int delayAfterConnect_ms)
 
 	if (delayAfterConnect_ms > 0)
 	{
-
 		Debug(_log, "delayAfterConnect for %d ms - start", delayAfterConnect_ms);
 
 		// Wait delayAfterConnect_ms before allowing write
@@ -331,32 +374,39 @@ int ProviderSerial::writeBytes(const qint64 size, const uint8_t* data)
 QString ProviderSerial::discoverFirst()
 {   
     // Thử kết nối với cổng đã biết trước
-    // if (s_lastSuccessPorts.contains(_ledType))
-    // {
-    //     QString lastPort = s_lastSuccessPorts[_ledType];
-    //     for (const auto& port : QSerialPortInfo::availablePorts())
-    //     {
-    //         if (port.portName() == lastPort)
-    //         {
-    //             quint16 vendor = port.vendorIdentifier();
-    //             quint16 prodId = port.productIdentifier();
-    //             bool isCH340 = (vendor == 0x1a86 && prodId == 0x7523);
+    if (s_lastSuccessPorts.contains(_instanceKey))
+    {
+        QString lastPort = s_lastSuccessPorts[_instanceKey];
+        for (const auto& port : QSerialPortInfo::availablePorts())
+        {
+            if (port.portName() == lastPort)
+            {
+                quint16 vendor = port.vendorIdentifier();
+                quint16 prodId = port.productIdentifier();
+                bool isCH340 = (vendor == 0x1a86 && prodId == 0x7523);
                 
-    //             if (isCH340)
-    //             {
-    //                 Info(_log, "Trying last successful port: %s", QSTRING_CSTR(lastPort));
-    //                 if (isAmbilightDevice(lastPort))
-    //                 {
-    //                     Info(_log, "Reconnected to last port: %s", QSTRING_CSTR(lastPort));
-    //                     return lastPort;
-    //                 }
-    //                 // Xóa port không còn phù hợp
-    //                 s_lastSuccessPorts.remove(_ledType);
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
+                if (isCH340)
+                {
+                    Info(_log, "Trying last successful port: %s", QSTRING_CSTR(lastPort));
+                    if (isAmbilightDevice(lastPort))
+                    {
+                        Info(_log, "Reconnected to last port: %s", QSTRING_CSTR(lastPort));
+                        return lastPort;
+                    }
+                    // Xóa port không còn phù hợp
+                    s_lastSuccessPorts.remove(_instanceKey);
+                    QMutexLocker locker(&s_portAccessMutex);
+                    s_settings.beginGroup("Instances");
+                    s_settings.beginGroup(_instanceKey);
+                    s_settings.remove("Port");
+                    s_settings.endGroup();
+                    s_settings.endGroup();
+                    s_settings.sync();
+                    break;
+                }
+            }
+        }
+    }
     
     // Tìm cổng mới nếu không có cổng đã biết
     static int nextPortIndex = 0;
@@ -398,11 +448,7 @@ QString ProviderSerial::discoverFirst()
 				.arg(port.systemLocation())
 				.arg(port.portName());
 
-			if (isAmbilightDevice(port.portName()))
-			{
-				// s_lastSuccessPorts[_ledType] = port.portName();
-				return port.portName();
-			}
+			if (isAmbilightDevice(port.portName())) return port.portName();
 		}
 	}
 	else

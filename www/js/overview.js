@@ -307,10 +307,33 @@ $(document).ready(function ()
 								'<div class="col-9 col-md-8 fw-bold ps-3" data-i18n="dashboard_componentbox_label_comp">Thành phần</div>'+
 								'<div class="col-3 col-md-4 fw-bold text-center" data-i18n="dashboard_componentbox_label_status">Trạng thái</div>'+
 							  '</div>';
+		
+		// Danh sách các thành phần cần hiển thị
+		const allowedComponents = ['SMOOTHING', 'BLACKBORDER', 'LEDDEVICE'];
+		
+		// Kiểm tra FLATBUFSERVER từ window.serverInfo.priorities
+		var flatbufEnabled = false;
+		if (window.serverInfo && window.serverInfo.priorities) {
+			for (var i = 0; i < window.serverInfo.priorities.length; i++) {
+				if (window.serverInfo.priorities[i].componentId === "FLATBUFSERVER") {
+					flatbufEnabled = window.serverInfo.priorities[i].active;
+					break;
+				}
+			}
+		}
+		
+		// Hiển thị FLATBUFSERVER nếu tồn tại trong priorities
+		if (window.serverInfo && window.serverInfo.priorities) {
+			components_html += `<div class="row border-bottom ambilightapp-vcenter" style="height:3em;"><div class="col-9 col-md-8 ps-4 ${(flatbufEnabled ? "" : "text-muted")}">${$.i18n('general_comp_FLATBUFSERVER_plugin')}</div><div class="col-3 col-md-4 text-center"><svg data-src="svg/overview_component_${(flatbufEnabled ? "on" : "off")}.svg" fill="currentColor" class="svg4ambilightapp top-0 ps-1"></svg></div></div>`;
+		}
+		
 		for (var idx = 0; idx < components.length; idx++)
 		{
-			if (components[idx].name != "ALL" && components[idx].name != "GRABBER")
+			// Chỉ hiển thị các thành phần trong danh sách allowedComponents
+			if (allowedComponents.includes(components[idx].name))
+			{
 				components_html += `<div class="row border-bottom ambilightapp-vcenter" style="height:3em;"><div class="col-9 col-md-8 ps-4 ${(components[idx].enabled ? "" : "text-muted")}">${$.i18n('general_comp_' + components[idx].name)}</div><div class="col-3 col-md-4 text-center"><svg data-src="svg/overview_component_${(components[idx].enabled ? "on" : "off")}.svg" fill="currentColor" class="svg4ambilightapp top-0 ps-1"></svg></div></div>`;
+			}
 		}
 		$("#tab_components").html(components_html);
 
@@ -369,19 +392,26 @@ $(document).ready(function ()
 	$('#dash_currv').html(window.currentVersion);
 	$('#dash_instance').html(window.currentAmbilightAppInstanceName);
 
-	// getReleases(function (callback)
-	// {
-	// 	if (callback)
-	// 	{
-	// 		$('#dash_latev').html(window.latestVersion.tag_name);
-
-	// 		if (compareAmbilightAppVersion(window.latestVersion.tag_name, window.currentVersion))
-	// 			$('#versioninforesult').html('<div class="callout callout-warning" style="margin:0px"><a target="_blank" href="' + window.latestVersion.html_url + '">' + $.i18n('dashboard_infobox_message_updatewarning', window.latestVersion.tag_name) + '</a></div>');
-	// 		else
-	// 			$('#versioninforesult').html('<div class="callout callout-success" style="margin:0px">' + $.i18n('dashboard_infobox_message_updatesuccess') + '</div>');
-
-	// 	}
-	// });
+	getReleases(function (callback)
+	{
+		if (callback)
+		{
+			// Chỉ hiển thị thông báo cập nhật trên Windows
+			if (window.serverInfo.grabbers && window.serverInfo.grabbers.active && 
+				window.serverInfo.grabbers.active.indexOf('Media Foundation') > -1)
+			{
+				if (compareAmbilightAppVersion(window.latestVersion.tag_name, window.currentVersion))
+					$('#versioninforesult').html('<div class="callout callout-warning" style="margin:0px"><a target="_blank" href="https://github.com/thesetupstore/ambilightapp-update/releases/download/' + window.latestVersion.tag_name + '/Ambilight-App-Lighting-' + window.latestVersion.tag_name.replace('v', '') + '-Windows-Setup.exe">' + $.i18n('dashboard_infobox_message_updatewarning', window.latestVersion.tag_name) + '</a></div>');
+				else
+					$('#versioninforesult').html('<div class="callout callout-success" style="margin:0px">' + $.i18n('dashboard_infobox_message_updatesuccess') + '</div>');
+			}
+			else
+			{
+				// Ẩn thông báo cập nhật trên các hệ điều hành khác
+				$('#versioninforesult').html('');
+			}
+		}
+	});
 
 
 	//determine platform

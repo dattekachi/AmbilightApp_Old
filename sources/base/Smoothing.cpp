@@ -42,8 +42,8 @@
 using namespace ambilightapp;
 
 namespace {
-	const int64_t  DEFAUL_SETTLINGTIME = 200;   // settlingtime in ms
-	const double   DEFAUL_UPDATEFREQUENCY = 25;    // updatefrequncy in hz
+	const int64_t  DEFAUL_SETTLINGTIME = 150;   // settlingtime in ms
+	const double   DEFAUL_UPDATEFREQUENCY = 50;    // updatefrequncy in hz
 	const double   MINIMAL_UPDATEFREQUENCY = 20;
 }
 
@@ -164,9 +164,9 @@ void Smoothing::handleSettingsUpdate(settings::type type, const QJsonDocument& c
 		else
 			cfg->type = SmoothingType::Linear;
 
-		cfg->antiFlickeringTreshold = obj["lowLightAntiFlickeringTreshold"].toInt(0);
-		cfg->antiFlickeringStep = obj["lowLightAntiFlickeringValue"].toInt(0);
-		cfg->antiFlickeringTimeout = obj["lowLightAntiFlickeringTimeout"].toInt(0);
+		cfg->antiFlickeringTreshold = obj["lowLightAntiFlickeringTreshold"].toInt(32);
+		cfg->antiFlickeringStep = obj["lowLightAntiFlickeringValue"].toInt(2);
+		cfg->antiFlickeringTimeout = obj["lowLightAntiFlickeringTimeout"].toInt(250);
 
 		Info(_log, "Creating config (%d) => type: %s, dirMode: %s, pause: %s, settlingTime: %ims, interval: %ims (%iHz), antiFlickTres: %i, antiFlickStep: %i, antiFlickTime: %i",
 			_currentConfigId, QSTRING_CSTR(SmoothingConfig::EnumToString(cfg->type)), (cfg->directMode) ? "true" : "false", (cfg->pause) ? "true" : "false", int(cfg->settlingTime), int(cfg->updateInterval), int(1000.0 / cfg->updateInterval), cfg->antiFlickeringTreshold, cfg->antiFlickeringStep, int(cfg->antiFlickeringTimeout));

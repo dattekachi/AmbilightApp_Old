@@ -95,4 +95,6 @@ signals:
 	void SignalDiscoveryRequestToScan(DiscoveryRecord::Service type);
 
 	void SignalDiscoveryEvent(DiscoveryRecord message);	
+
+	void SignalPortChanged(const QString& instanceKey, const QString& newPort);
 };

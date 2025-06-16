@@ -1,6 +1,7 @@
 #pragma once
 
 #include <leddevice/LedDevice.h>
+#include <QSettings>
 
 class QSerialPort;
 
@@ -11,6 +12,9 @@ class ProviderSerial : public LedDevice
 public:
 	ProviderSerial(const QJsonObject& deviceConfig);
 	~ProviderSerial() override;
+
+signals:
+	void portChanged(const QString& instanceKey, const QString& newPort);
 
 protected:
 
@@ -36,6 +40,8 @@ public slots:
 
 private:
 	static QMutex s_portAccessMutex;
+	static QMap<QString, QString> s_lastSuccessPorts;
+	static QSettings s_settings;
 	bool tryOpen(int delayAfterConnect_ms);
 	bool _isAutoDeviceName;
 	int _delayAfterConnect_ms;
@@ -43,5 +49,5 @@ private:
 	bool _espHandshake;
 	bool _forceSerialDetection;
 	QString _ledType;
-	// static QMap<QString, QString> s_lastSuccessPorts;
+	QString _instanceKey;
 };

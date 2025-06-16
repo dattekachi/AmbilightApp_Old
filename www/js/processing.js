@@ -37,11 +37,7 @@ $(document).ready( function() {
 
 	requestHasLedClock();
 		
-	{
-		//color		
-		$('#conf_cont').append(createOptPanel('<svg data-src="svg/image_processing_color_calibration.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_color_heading_title"), 'editor_container_color', 'btn_submit_color'));
-		$('#conf_cont').append(createHelpTable(window.schema.color.properties, $.i18n("edt_conf_color_heading_title")));
-		
+	{	
 		//smoothing		
 		$('#conf_cont').append(createOptPanel('<svg data-src="svg/image_processing_smoothing.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_smooth_heading_title"), 'editor_container_smoothing', 'btn_submit_smoothing'));
 		$('#conf_cont').append(createHelpTable(window.schema.smoothing.properties, $.i18n("edt_conf_smooth_heading_title")));
@@ -49,6 +45,10 @@ $(document).ready( function() {
 		//blackborder
 		$('#conf_cont').append(createOptPanel('<svg data-src="svg/image_processing_blackborder.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_bb_heading_title"), 'editor_container_blackborder', 'btn_submit_blackborder'));
 		$('#conf_cont').append(createHelpTable(window.schema.blackborderdetector.properties, $.i18n("edt_conf_bb_heading_title")));
+
+		// //color		
+		$('#conf_cont').append(createOptPanel('<svg data-src="svg/image_processing_color_calibration.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_color_heading_title"), 'editor_container_color', 'btn_submit_color'));
+		$('#conf_cont').append(createHelpTable(window.schema.color.properties, $.i18n("edt_conf_color_heading_title")));
 	}	
 	
 	//color
@@ -63,7 +63,17 @@ $(document).ready( function() {
 	$('#btn_submit_color').off().on('click',function() {
 		requestWriteConfig(editor_color.getValue());
 	});
-	
+
+	$("#editor_container_color [data-schemapath^='root.color.channelAdjustment']").each(function() {
+		const path = $(this).attr('data-schemapath');
+		if (path.includes('brightness') ||
+			path.includes('brightnessCompensation') ||
+			path.includes('backlightThreshold') ||
+			path.includes('backlightColored')) {
+			$(this).hide();
+		}
+	});
+
 	//smoothing
 	editor_smoothing = createJsonEditor('editor_container_smoothing', {
 		smoothing          : window.schema.smoothing

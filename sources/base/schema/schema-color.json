@@ -196,69 +196,6 @@
 						},
 						"propertyOrder" : 10
 					},
-					"backlightThreshold" :
-					{
-						"type" : "integer",
-						"format": "stepper",
-						"step" : 1,
-						"title" : "edt_conf_color_backlightThreshold_title",
-						"required" : true,
-						"minimum" : 0,
-						"maximum": 100,
-						"default" : 0,
-						"append" : "edt_append_percent",
-						"propertyOrder" : 11
-					},
-					"backlightColored" :
-					{
-						"type" : "boolean",
-						"format": "checkbox",
-						"title" : "edt_conf_color_backlightColored_title",
-						"required" : true,
-						"default" : true,
-						"propertyOrder" : 12,
-						"options": {
-							"dependencies": {
-								"backlightThreshold": true
-							}
-						}
-					},
-					"brightness" :
-					{
-						"type" : "integer",
-						"format": "stepper",
-						"step" : 1,
-						"title" : "edt_conf_color_brightness_title",
-						"required" : true,
-						"minimum" : 0,
-						"maximum": 100,
-						"default" : 100,
-						"options": {
-							"dependencies": {
-								"classic_config": false
-							}
-						},
-						"append" : "edt_append_percent",
-						"propertyOrder" : 13
-					},
-					"brightnessCompensation" :
-					{
-						"type" : "integer",
-						"format": "stepper",
-						"step" : 1,
-						"title" : "edt_conf_color_brightnessComp_title",
-						"required" : true,
-						"minimum" : 0,
-						"maximum": 100,
-						"default" : 0,
-						"options": {
-							"dependencies": {
-								"classic_config": false
-							}
-						},
-						"append" : "edt_append_percent",
-						"propertyOrder" : 14
-					},
 					"gammaRed" :
 					{
 						"type" : "number",
@@ -269,7 +206,7 @@
 						"minimum" : 0.1,
 						"maximum": 100.0,
 						"default" : 3,						
-						"propertyOrder" : 15
+						"propertyOrder" : 11
 					},
 					"gammaGreen" :
 					{
@@ -281,7 +218,7 @@
 						"minimum" : 0.1,
 						"maximum": 100.0,
 						"default" : 3,
-						"propertyOrder" : 16
+						"propertyOrder" : 12
 					},
 					"gammaBlue" :
 					{
@@ -293,7 +230,7 @@
 						"minimum" : 0.1,
 						"maximum": 100.0,
 						"default" : 3,
-						"propertyOrder" : 17
+						"propertyOrder" : 13
 					},
 					"temperatureRed" :
 					{
@@ -310,7 +247,7 @@
 								"classic_config": true
 							}
 						},
-						"propertyOrder" : 18
+						"propertyOrder" : 14
 					},
 					"temperatureGreen" :
 					{
@@ -327,7 +264,7 @@
 								"classic_config": true
 							}
 						},
-						"propertyOrder" : 19
+						"propertyOrder" : 15
 					},
 					"temperatureBlue" :
 					{
@@ -344,7 +281,7 @@
 								"classic_config": true
 							}
 						},
-						"propertyOrder" : 20
+						"propertyOrder" : 16
 					},
 					"saturationGain" :
 					{
@@ -361,7 +298,7 @@
 								"classic_config": true
 							}
 						},
-						"propertyOrder" : 21
+						"propertyOrder" : 17
 					},
 					"luminanceGain" :
 					{
@@ -378,7 +315,67 @@
 								"classic_config": true
 							}
 						},
-						"propertyOrder" : 22
+						"propertyOrder" : 18
+					},
+					"brightness" :
+					{
+						"type" : "integer",
+						"format": "range",
+						"step" : 10,
+						"title" : "edt_conf_color_brightness_title",
+						"required" : true,
+						"minimum" : 0,
+						"maximum": 100,
+						"default" : 100,
+						"options": {
+							"dependencies": {
+								"classic_config": false
+							}
+						},
+						"propertyOrder" : 19
+					},
+					"brightnessCompensation" :
+					{
+						"type" : "integer",
+						"format": "range",
+						"step" : 1,
+						"title" : "edt_conf_color_brightnessComp_title",
+						"required" : true,
+						"minimum" : 0,
+						"maximum": 100,
+						"default" : 0,
+						"options": {
+							"dependencies": {
+								"classic_config": false
+							}
+						},
+						"propertyOrder" : 20
+					},
+					"backlightThreshold" :
+					{
+						"type" : "integer",
+						"format": "range",
+						"step" : 1,
+						"title" : "edt_conf_color_backlightThreshold_title",
+						"required" : true,
+						"minimum" : 0,
+						"maximum": 10,
+						"default" : 0,
+						"propertyOrder" : 21
+					},
+					"backlightColored" :
+					{
+						"type" : "boolean",
+						"format": "checkbox",
+						"title" : "edt_conf_color_backlightColored_title",
+						"required" : true,
+						"default" : true,
+						"propertyOrder" : 22,
+						"options": {
+							"dependencies": {
+								"backlightThreshold": true
+							}
+						}
 					}
 				},
 				"additionalProperties" : false

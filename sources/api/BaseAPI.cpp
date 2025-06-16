@@ -154,6 +154,8 @@ bool BaseAPI::startInstance(quint8 index, int tan)
 	bool res;
 
 	SAFE_CALL_3_RET(_instanceManager.get(), startInstance, bool, res, quint8, index, QObject*, this, int, tan);
+	// if (res)
+	// 	addMusicDevice(index);
 
 	return res;
 }
@@ -161,7 +163,177 @@ bool BaseAPI::startInstance(quint8 index, int tan)
 void BaseAPI::stopInstance(quint8 index)
 {
 	QUEUE_CALL_1(_instanceManager.get(), stopInstance, quint8, index);
+	// removeMusicDevice(index);
 }
+
+// bool BaseAPI::addMusicDevice(const quint8 inst)
+// {
+//     Info(_log, "Adding music device for instance %d", inst);
+
+//     auto instance = _instanceManager->getAmbilightAppInstance(inst);
+//     if (!instance) {
+//         Error(_log, "Invalid instance %d", inst);
+//         return false;
+//     }
+
+//     // Lấy thông tin instance
+//     QJsonObject info;
+//     BLOCK_CALL_2(_ambilightapp.get(), putJsonInfo, QJsonObject&, info, bool, true);
+
+//     QJsonArray instanceInfo = info["instance"].toArray();
+//     if (inst >= instanceInfo.size()) {
+//         Error(_log, "Instance index %d out of range", inst);
+//         return false;
+//     }
+
+//     // Kiểm tra và tạo thư mục
+//     QString configDir = QDir::homePath() + "/.mls";
+//     QDir dir(configDir);
+//     if (!dir.exists()) {
+//         Info(_log, "Creating config directory: %s", QSTRING_CSTR(configDir));
+//         dir.mkpath(".");
+//     }
+
+//     // Đọc file config
+//     QString configPath = configDir + "/config.json";
+//     Info(_log, "Reading config file: %s", QSTRING_CSTR(configPath));
+    
+//     QFile file(configPath);
+//     QJsonObject config;
+
+//     if (file.exists()) {
+//         if (!file.open(QIODevice::ReadWrite)) {
+//             Error(_log, "Cannot open config file: %s", QSTRING_CSTR(file.errorString()));
+//             return false;
+//         }
+//         QByteArray data = file.readAll();
+//         QJsonDocument doc = QJsonDocument::fromJson(data);
+//         config = doc.object();
+//         file.close();
+//     }
+
+//     // Tạo device config
+//     QJsonObject instObj = instanceInfo[inst].toObject();
+//     QString instanceName = instObj["name"].toString();
+//     QString deviceId = instanceName.toLower().replace(" ", "-");
+
+//     Info(_log, "Creating device config for: %s (id: %s)", 
+//          QSTRING_CSTR(instanceName), QSTRING_CSTR(deviceId));
+
+//     QJsonObject deviceConfig;
+//     deviceConfig["baudrate"] = 1000000;
+//     deviceConfig["center_offset"] = 0;
+//     deviceConfig["color_order"] = "RGB";
+//     deviceConfig["com_port"] = instObj["output"].toString();
+//     deviceConfig["icon_name"] = "mdi:led-strip";
+//     deviceConfig["name"] = instanceName;
+//     deviceConfig["pixel_count"] = instObj["ledCount"].toInt();
+//     deviceConfig["refresh_rate"] = 62;
+
+//     QJsonObject device;
+//     device["config"] = deviceConfig;
+//     device["id"] = deviceId;
+//     device["type"] = "ambilightusb";
+
+//     // Thêm vào mảng devices
+//     QJsonArray devices = config["devices"].toArray();
+//     bool exists = false;
+    
+//     for (const auto& dev : devices) {
+//         if (dev.toObject()["id"].toString() == deviceId) {
+//             Info(_log, "Device already exists");
+//             exists = true;
+//             break;
+//         }
+//     }
+
+//     if (!exists) {
+//         Info(_log, "Adding new device to config");
+//         devices.append(device);
+//         config["devices"] = devices;
+
+//         // Ghi file
+//         if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+//             Error(_log, "Cannot open file for writing: %s", QSTRING_CSTR(file.errorString()));
+//             return false;
+//         }
+
+//         QJsonDocument saveDoc(config);
+//         QByteArray saveData = saveDoc.toJson(QJsonDocument::Indented);
+        
+//         Info(_log, "Writing config: %s", QSTRING_CSTR(QString(saveData)));
+        
+//         qint64 bytesWritten = file.write(saveData);
+//         file.close();
+
+//         if (bytesWritten <= 0) {
+//             Error(_log, "Failed to write config file");
+//             return false;
+//         }
+
+//         Info(_log, "Device added successfully");
+//         return true;
+//     }
+
+//     return exists;
+// }
+
+// bool BaseAPI::removeMusicDevice(const quint8 inst)
+// {
+//     auto instance = _instanceManager->getAmbilightAppInstance(inst);
+//     if (!instance)
+//         return false;
+
+//     // Lấy thông tin instance
+//     QJsonObject info;
+//     BLOCK_CALL_2(_ambilightapp.get(), putJsonInfo, QJsonObject&, info, bool, true);
+
+//     QJsonArray instanceInfo = info["instance"].toArray();
+//     if (inst >= instanceInfo.size())
+//         return false;
+
+//     // Kiểm tra file config
+//     QString configPath = QDir::homePath() + "/.mls/config.json";
+//     if (!QFile::exists(configPath))
+//         return true;
+
+//     QFile file(configPath);
+//     if (!file.open(QIODevice::ReadWrite))
+//         return false;
+
+//     // Đọc config hiện tại
+//     QByteArray data = file.readAll();
+//     QJsonDocument doc = QJsonDocument::fromJson(data);
+//     QJsonObject config = doc.object();
+
+//     // Lấy device ID từ tên instance
+//     QJsonObject instObj = instanceInfo[inst].toObject();
+//     QString deviceId = instObj["name"].toString().toLower().replace(" ", "-");
+
+//     // Xóa device khỏi mảng devices
+//     QJsonArray devices = config["devices"].toArray();
+//     QJsonArray newDevices;
+//     bool removed = false;
+
+//     for (const auto& dev : devices) {
+//         if (dev.toObject()["id"].toString() != deviceId) {
+//             newDevices.append(dev);
+//         } else {
+//             removed = true;
+//         }
+//     }
+
+//     if (removed) {
+//         config["devices"] = newDevices;
+        
+//         // Lưu lại file config
+//         file.resize(0);
+//         file.write(QJsonDocument(config).toJson(QJsonDocument::Indented));
+//     }
+    
+//     file.close();
+//     return true;
+// }
 
 bool BaseAPI::deleteInstance(quint8 index, QString& replyMsg)
 {

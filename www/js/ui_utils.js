@@ -101,99 +101,38 @@ function loadContent(event, forceRefresh)
 
 function updateAmbilightappInstanceListing()
 {
-	let hasItems = false;
 	let data = window.serverInfo.instance.filter(entry => entry.running);
-	$('#ambilightapp_instances_list').html("");
+	$('#instance_list').html("");
 
-	if (data.length > 1)
+	for(var key in data)
 	{
-		hasItems = true;
-		for(var key in data)
-		{
-			var currInstMarker = (data[key].instance == window.currentAmbilightAppInstance) ? 'data-src="svg/instances_top_menu_indicator.svg"' : '';
-			var currInstMarkerBackground = (data[key].instance == window.currentAmbilightAppInstance) ? 'text-success' : 'instance-unselected-marker';
-			var currTextMarker = (data[key].instance == window.currentAmbilightAppInstance) ? "my-text-success" : "";
-		
-			var myName = data[key].friendly_name;
-		
-			if (myName.length>20)
-				myName = myName.slice(0,17) + '...';
-		
-			var html = `<li id="ambilightappinstance_${data[key].instance}"><a>`+
-							'<div class="d-flex" style="cursor: pointer;">'+							
-								`<div class="flex ps-2 pe-1 ${currInstMarkerBackground}">`+
-									`<svg xmlns="http://www.w3.org/2000/svg" ${currInstMarker} width="16" height="16" fill="currentColor" style="position: relative;top: -2px;"></svg>`+
-								'</div>'+
-								`<div class="flex pe-2 ${currTextMarker}">`+
-									`<span class="h-100" style="display: inline-flex; align-items: center;">${myName}</span>`+
-								'</div>'+
-							'</div>'+
-					   '</a></li>';
-
-			if(data.length-1 > key)
-				html += '<li class="dropdown-divider"></li>';
-
-			$('#ambilightapp_instances_list').append(html);
-
-			$('#ambilightappinstance_'+data[key].instance).off().on("click",function(e){
-				instanceSwitch(e.currentTarget.id.split("_")[1]);
-			});
-		}
-	}
-
-	// let hyperHDRs = window.serverInfo.sessions;
-	// if (hyperHDRs != null && hyperHDRs.length > 0)
-	// {
-	// 	for(var i = 0; i< hyperHDRs.length; i++)
-	// 		if(hyperHDRs[i].name == "AmbilightAPP")
-	// 		{				
-	// 			if (i == 0)
-	// 			{
-	// 				if (hasItems)
-	// 					$('#ambilightapp_instances_list').append('<li class="dropdown-divider bg-info" style="border-top-width:2px;"></li>');
-	// 			}
-	// 			else if (hasItems)
-	// 				$('#ambilightapp_instances_list').append('<li class="dropdown-divider bg-info"></li>');
-				
-
-	// 			var hostName = hyperHDRs[i].host;
-
-	// 			if (hostName.length > 0)
-	// 			{
-	// 				hostName = hostName.replace(/"/g, "'");
-	// 			}
-
-	// 			var html = `<li id="remote_ambilightappinstance_${i}" class="text-info" data-toggle="tooltip" data-placement="right" title="${hostName}"><a>`+
-	// 					'<div class="d-flex" style="cursor: pointer;">'+							
-	// 						`<div class="flex ps-2 pe-1">`+
-	// 							`<svg xmlns="http://www.w3.org/2000/svg" data-src="svg/button_link.svg" width="16" height="16" fill="currentColor" style="position: relative;top: -2px;"></svg>`+
-	// 						'</div>'+
-	// 						`<div class="flex pe-2">`+
-	// 							`<span class="h-100" style="display: inline-flex; align-items: center;">${hyperHDRs[i].address}:${hyperHDRs[i].port}</span>`+
-	// 						'</div>'+
-	// 					'</div>'+
-	// 				'</a></li>';
-	// 			$('#ambilightapp_instances_list').append(html);
-
-	// 			const destAddress = `http://${hyperHDRs[i].address}:${hyperHDRs[i].port}`;
-	// 			$(`#remote_ambilightappinstance_${i}`).off().on("click",function(e){
-	// 				$("#loading_overlay").addClass("overlay");
-	// 				window.location.href = destAddress;
-	// 			});
-
-	// 			hasItems = true;
-	// 		}		
-	// }
-
+		var currInstMarker = (data[key].instance == window.currentAmbilightAppInstance) ? 'data-src="svg/instances_top_menu_indicator.svg"' : '';
+		var currInstMarkerBackground = (data[key].instance == window.currentAmbilightAppInstance) ? 'text-success' : 'instance-unselected-marker';
+		var currTextMarker = (data[key].instance == window.currentAmbilightAppInstance) ? "my-text-success" : "";
 	
-	if (hasItems)
-	{			
-		$('#btn_hypinstanceswitch').removeClass('disabled');		
-	}
-	else
-	{
-		$('#btn_hypinstanceswitch').addClass('disabled');
-		$('#ambilightapp_instances_list').removeClass('show');
+		var myName = data[key].friendly_name;
+	
+		if (myName.length>20)
+			myName = myName.slice(0,17) + '...';
+	
+		var html = `<div class="nav-item" id="ambilightappinstance_${data[key].instance}" style="margin-bottom: 2px;">`+
+					'<a class="nav-link" style="cursor: pointer; padding-top: 4px; padding-bottom: 4px;">'+							
+						'<div class="d-flex align-items-center">'+
+							`<div class="flex ps-2 pe-1 ${currInstMarkerBackground}">`+
+								`<svg xmlns="http://www.w3.org/2000/svg" ${currInstMarker} width="16" height="16" fill="currentColor" class="svg4ambilightapp leftmenu"></svg>`+
+							'</div>'+
+							`<div class="flex pe-2 ${currTextMarker}">`+
+								`<span class="h-100" style="display: inline-flex; align-items: center;">${myName}</span>`+
+							'</div>'+
+						'</div>'+
+					'</a>'+
+				'</div>';
+
+		$('#instance_list').append(html);
+
+		$('#ambilightappinstance_'+data[key].instance).off().on("click",function(e){
+			instanceSwitch(e.currentTarget.id.split("_")[1]);
+		});
 	}
 }
 

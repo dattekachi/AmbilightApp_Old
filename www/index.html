@@ -37,8 +37,7 @@
         <script src="js/ambilightapp.js"></script>
         <script src="js/ui_utils.js"></script>        
 
-        <script src="js/lib/vanilla-picker.min.js"></script>
-		
+        <script src="js/lib/vanilla-picker.min.js"></script>		
         <script src="js/lib/jsoneditor.min.js"></script>
         <script type="text/javascript" src="js/lib/svg-loader.min.js" async></script>
 
@@ -94,14 +93,6 @@
 				}
 			</style>
 		</noscript>
-		
-		
-		<!-- <a href="#" id="main-window-button-menu" class="nav-link" data-widget="pushmenu" role="button" style = "position: fixed; top: 0; right: 0px; z-index: 200">			
-			<div class="icon-menu-control pt-3 pe-3">					
-				<svg id="showMenuIcon" data-src="svg/left_menu_hide.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 1; transition: opacity 0.5s;"></svg>
-				<svg id="hideMenuIcon" data-src="svg/left_menu_show.svg" fill="currentColor" style="width:64px; height:64px; position:absolute; left:-64px; opacity: 0; transition: opacity 0.5s;"></svg>
-			</div>			
-		</a> -->
 
 		<div id="loading_overlay" class="overlay"></div>
 		<div class="wrapper">
@@ -128,14 +119,6 @@
 										<svg id="btn_darkmode_moon_icon" aria-hidden="true" data-src="svg/moon.svg" fill="currentColor" class="svg4ambilightapp leftmenu top-left-menu"></svg>
 									</a>
 								</div>
-								<div class="col bottom-menu ps-0 pe-0">							
-									<div class="btn-group dropdown">
-										<svg id="btn_hypinstanceswitch" data-bs-toggle="dropdown" aria-expanded="false" data-src="svg/instances.svg" fill="currentColor" class="svg4ambilightapp leftmenu top-left-menu disabled"></svg>
-										<ul id="ambilightapp_instances_list" class="dropdown-menu me-2">
-											<li></li>
-										</ul>
-									</div>
-								</div>
 								<div class="col bottom-menu ps-0 pe-0">
 									<a id="btn_open_ledsim">
 										<svg aria-hidden="true" data-src="svg/television.svg" fill="currentColor" class="svg4ambilightapp leftmenu top-left-menu"></svg>
@@ -150,13 +133,17 @@
 						</div>
 					</li>
 					<li><hr class="dropdown-divider mt-2 mb-3"></li>
+
+					<li class="nav-header">
+						<p class="ms-2 h6">Đang chọn:</p>
+					</li>
+					<div id="instance_list" class="nav nav-pills nav-sidebar nav-child-indent flex-column mb-3"></div>
+
+					<li><hr class="dropdown-divider mb-3"></li>
 					
 					<li class="nav-item">
 						<a href="#overview" class="nav-link system-link"><svg data-src="svg/overview_heartbeat.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_dashboard_token">Tổng quan</p></a>
 					</li>
-
-					<hr>
-
 					<li class="nav-item">
 						<a href="#general" class="nav-link system-link"><svg data-src="svg/light_source.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_general_conf_token">Quản lí LED</p></a>
 					</li>
@@ -164,37 +151,17 @@
 						<a href="#light_source" class="nav-link system-link"><svg data-src="svg/general.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_leds_conf_token">Cấu hình LED</p></a>
 					</li>
 
-					<hr>
-
-					<li class="nav-item">											
-						<a href="#effects" class="nav-link system-link"><svg data-src="svg/effects.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_effect_conf_token">Cài đặt hiệu ứng</p></a>
-					</li>
-
-					<hr>
-
 					<li class="nav-item">
 						<a href="#" class="nav-link">
 							<svg data-src="svg/advanced.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_advanced_token">Cài đặt nâng cao</p><svg data-src="svg/main_menu_expander.svg" fill="currentColor" class="svg4ambilightapp leftmenu right"></svg>
 						</a>
 						<ul class="nav nav-treeview">
-							<li class="nav-item">
-								<a href="#grabber" class="nav-link system-link"><svg data-src="svg/capturing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_grabber_conf_token">Capturing Hardware</p></a>
-							</li>					
-							<!-- <li class="nav-item">																	
-								<a href="#remote" class="nav-link system-link"><svg data-src="svg/remote_control.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_remotecontrol_token">Bảng điều khiển nhanh</p></a>
-							</li>	
-							<li class="nav-item">																	
-								<a href="#network" class="nav-link system-link"><svg data-src="svg/network_services.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_network_conf_token">Cài đặt mạng</p></a>
-							</li>		
-							<li class="nav-item">																	
-								<a href="#logs" class="nav-link system-link"><svg data-src="svg/logs.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_logging_token">Gỡ Lỗi</p></a>
-							</li>	 -->
 							<li class="nav-item">																	
 								<a href="#processing" class="nav-link system-link"><svg data-src="svg/image_processing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_colors_conf_token">Xử lý hình ảnh, màu sắc</p></a>
 							</li>
-							<li id="btn_changePassword">
-								<a class="nav-link"><svg data-src="svg/change_password.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><span data-i18n="InfoDialog_changePassword_title"></span></a>
-							</li>								
+							<li class="nav-item">
+								<a href="#grabber" class="nav-link system-link"><svg data-src="svg/capturing.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_grabber_conf_token">Capturing Hardware</p></a>
+							</li>											
 						</ul>
 					</li>
 
@@ -205,9 +172,9 @@
 						<ul id="language_container_menu" class="nav nav-treeview"></ul>
 					</li>
 
-					<!-- <li class="nav-item">																	
-						<a href="#logs" class="nav-link system-link"><svg data-src="svg/logs.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_logging_token">Gỡ Lỗi</p></a>
-					</li> -->
+					<li class="nav-item">																	
+						<a href="#debug" class="nav-link system-link"><svg data-src="svg/logs.svg" fill="currentColor" class="svg4ambilightapp leftmenu"></svg><p data-i18n="main_menu_logging_token">Gỡ Lỗi</p></a>
+					</li>
 				  </ul>
 				</nav>
 				<!-- /.sidebar-menu -->
@@ -331,6 +298,33 @@
 						<button type="button" class="btn btn-info btn-sm" id="leds_screenshot"><svg data-src="svg/button_download.svg" style="width:14px;" fill="currentColor" class="svg4ambilightapp"></svg><span id="vid_btn_4">Screenshot</span></button>
 					</div>
 				</div>
+
+				<!-- Tutorial Dialog -->
+				<div id="firstOpenDialogCustom" style="
+					display: none;
+					position: fixed;
+					right: 40px;
+					bottom: 40px;
+					z-index: 9999;
+					width: 700px;
+					max-width: 98vw;
+					border-radius: 16px;
+					box-shadow: 0 8px 48px rgba(0,0,0,0.18);
+					padding: 0;
+					overflow: hidden;
+				">
+					<div style="display: flex; justify-content: space-between; align-items: center; padding: 28px 40px 12px 40px;">
+						<span style="font-weight: bold; font-size: 1.4em;">Menu chức năng</span>
+						<button id="firstOpenDialogCustomClose" style="border: none; background: none; font-size: 2em; line-height: 1; cursor: pointer;">&times;</button>
+					</div>
+					<div style="padding: 0 40px 24px 40px; text-align: center;">
+						<div class="tutorial-img-bg" style="width: 100%; height: 320px; display: flex; align-items: center; justify-content: center; border-radius: 12px; overflow: hidden;">
+							<img src="img/ambilightapp/tutorial.png" alt="Hướng dẫn" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);" />
+						</div>
+						<p class="mt-4 mb-3" style="font-size:1.15em;">Bạn có thể sử dụng các chức năng của Ambilight App ở menu nằm dưới thanh taskbar bằng cách chuột phải vào icon app như hình trên.</p>
+						<button id="firstOpenDialogCustomOk" class="btn btn-primary btn-lg">Đã hiểu</button>
+					</div>
+				</div>
 			</div>
 		</div>
         <!-- Bootstrap Core JavaScript -->
@@ -338,7 +332,6 @@
 
         <!-- Custom Theme JavaScript -->
         <script src="js/lib/adminlte.min.js"></script>
-
         <script src="js/index.js"></script>
         <script src="js/settings.js"></script>
         <script src="js/streamer.js"></script>

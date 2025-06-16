@@ -122,10 +122,10 @@ void SystemControl::handleSettingsUpdate(settings::type type, const QJsonDocumen
 	if (type == settings::type::SYSTEMCONTROL)
 	{
 		const QJsonObject& obj = config.object();
-		if (_sysCaptPrio != obj["systemInstancePriority"].toInt(245))
+		if (_sysCaptPrio != obj["systemInstancePriority"].toInt(100))
 		{
 			setSysCaptureEnable(false); // clear prio
-			_sysCaptPrio = obj["systemInstancePriority"].toInt(245);
+			_sysCaptPrio = obj["systemInstancePriority"].toInt(100);
 		}
 
 		setSysCaptureEnable(obj["systemInstanceEnable"].toBool(false));

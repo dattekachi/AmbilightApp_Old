@@ -1,7 +1,4 @@
 var storedLang;
-// var availLang = ['cs','de','en','es','fr','it','nl','pl','ro','sv','vi','ru','tr','zh-CN'];
-// var availLangText = ['Čeština', 'Deutsch', 'English', 'Español', 'Français', 'Italiano', 'Nederlands', 'Polski', 'Română', 'Svenska', 'Tiếng Việt', 'Русский', 'Türkçe', '汉语'];
-
 var availLang = ['vi', 'en'];
 var availLangText = ['Tiếng Việt', 'English'];
 
@@ -37,6 +34,7 @@ $(document).ready( function() {
 	function initTrans(lc){
 		if (lc == 'auto')
 		{
+			$.i18n().locale = 'vi';
 			$.i18n().load().done(
 			function() {
 				performTranslation();

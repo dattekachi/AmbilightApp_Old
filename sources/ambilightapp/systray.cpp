@@ -2,6 +2,9 @@
 	#include <QColor>
 	#include <QSettings>
 	#include <list>
+	#include <QJsonObject>
+	#include <QJsonDocument>
+	#include <utils/settings.h>
 #endif
 
 #ifndef _WIN32
@@ -66,6 +69,8 @@ SysTray::~SysTray()
 {
 	printf("Releasing SysTray\n");
 
+	cleanup();
+
 	if (_trayIconEfxMenu != nullptr)
 	{
 		for (QAction*& effect : _trayIconEfxMenu->actions())
@@ -92,6 +97,16 @@ SysTray::~SysTray()
 	delete _trayIconMenu;
 	delete _colorDlg;
 	delete _toggleLedAction;
+}
+
+void SysTray::cleanup()
+{
+    if (_trayIcon != nullptr)
+    {
+        _trayIcon->hide();
+        delete _trayIcon;
+        _trayIcon = nullptr;
+    }
 }
 
 void SysTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -141,13 +156,52 @@ void SysTray::createTrayIcon()
 	_brightnessMenu = new QMenu(tr("&Độ sáng LED"));
 	_brightnessMenu->setIcon(QPixmap(":/brightness.svg")); 
 
+	// Lấy độ sáng hiện tại
+	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+	int currentBrightness = 100;
+	if (instanceManager)
+	{
+		int instanceIndex = _selectedInstance;
+		if (instanceIndex == -1)
+			instanceIndex = 0;
+
+		auto instance = instanceManager->getAmbilightAppInstance(instanceIndex);
+		if (instance)
+		{
+			QJsonDocument configDoc = instance->getSetting(settings::type::COLOR);
+			QJsonObject config = configDoc.object();
+			
+			if (config.contains("channelAdjustment"))
+			{
+				QJsonArray adjustments = config["channelAdjustment"].toArray();
+				if (!adjustments.isEmpty())
+				{
+					QJsonObject firstAdjustment = adjustments[0].toObject();
+					if (firstAdjustment.contains("brightness"))
+					{
+						currentBrightness = firstAdjustment["brightness"].toInt(100);
+					}
+				}
+			}
+		}
+	}
+
+	// Tạo action group để chỉ có thể chọn một độ sáng
+	QActionGroup* brightnessGroup = new QActionGroup(this);
+	brightnessGroup->setExclusive(true);
+
 	for(int brightness = 100; brightness >= 10; brightness -= 10) {
-		QAction* brightnessAction = new QAction(QString::number(brightness) + "%", this);
+		QAction* brightnessAction = new QAction(QString::number(brightness) + "%", brightnessGroup);
+		brightnessAction->setCheckable(true);
+		brightnessAction->setChecked(brightness == currentBrightness);
 		connect(brightnessAction, &QAction::triggered, this, [this, brightness]() {
 			this->setBrightness(brightness);
 		});
 		_brightnessMenu->addAction(brightnessAction);
 	}
+
+	// Kết nối signal aboutToShow để cập nhật menu
+	connect(_brightnessMenu, &QMenu::aboutToShow, this, &SysTray::updateBrightnessMenu);
 
 	_quitAction = new QAction(tr("&Thoát"));
 	_quitAction->setIcon(QPixmap(":/quit.svg"));
@@ -224,7 +278,6 @@ void SysTray::createTrayIcon()
     //     }
     // }
 
-	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	std::list<EffectDefinition> efxs;
 
 	if (instanceManager)
@@ -425,7 +478,99 @@ void SysTray::setBrightness(int brightness)
     std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
     if (instanceManager)
     {
-        instanceManager->setInstanceBrightness(_selectedInstance, brightness);
+        if (_selectedInstance == -1)
+        {
+            // Lấy danh sách tất cả instance đang chạy
+            QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+            for (const QVariantMap& inst : instanceData)
+            {
+                if (inst["running"].toBool())
+                {
+                    int idx = inst["instance"].toInt();
+                    auto instance = instanceManager->getAmbilightAppInstance(idx);
+                    if (instance)
+                    {
+                        QJsonDocument configDoc = instance->getSetting(settings::type::COLOR);
+                        QJsonObject config = configDoc.object();
+                        if (config.contains("channelAdjustment"))
+                        {
+                            QJsonArray adjustments = config["channelAdjustment"].toArray();
+                            if (!adjustments.isEmpty())
+                            {
+                                QJsonObject firstAdjustment = adjustments[0].toObject();
+                                firstAdjustment["brightness"] = brightness;
+                                adjustments[0] = firstAdjustment;
+                                config["channelAdjustment"] = adjustments;
+                            }
+                        }
+                        instance->setSetting(settings::type::COLOR, QJsonDocument(config).toJson());
+                    }
+                }
+            }
+        }
+        else
+        {
+            auto instance = instanceManager->getAmbilightAppInstance(_selectedInstance);
+            if (instance)
+            {
+                QJsonDocument configDoc = instance->getSetting(settings::type::COLOR);
+                QJsonObject config = configDoc.object();
+                if (config.contains("channelAdjustment"))
+                {
+                    QJsonArray adjustments = config["channelAdjustment"].toArray();
+                    if (!adjustments.isEmpty())
+                    {
+                        QJsonObject firstAdjustment = adjustments[0].toObject();
+                        firstAdjustment["brightness"] = brightness;
+                        adjustments[0] = firstAdjustment;
+                        config["channelAdjustment"] = adjustments;
+                    }
+                }
+                instance->setSetting(settings::type::COLOR, QJsonDocument(config).toJson());
+            }
+        }
+    }
+}
+
+void SysTray::updateBrightnessMenu()
+{
+    // Lấy độ sáng hiện tại
+    std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+    int currentBrightness = 100;
+    if (instanceManager)
+    {
+        int instanceIndex = _selectedInstance;
+        if (instanceIndex == -1)
+            instanceIndex = 0;
+			
+        auto instance = instanceManager->getAmbilightAppInstance(instanceIndex);
+        if (instance)
+        {
+            QJsonDocument configDoc = instance->getSetting(settings::type::COLOR);
+            QJsonObject config = configDoc.object();
+            
+            if (config.contains("channelAdjustment"))
+            {
+                QJsonArray adjustments = config["channelAdjustment"].toArray();
+                if (!adjustments.isEmpty())
+                {
+                    QJsonObject firstAdjustment = adjustments[0].toObject();
+                    if (firstAdjustment.contains("brightness"))
+                    {
+                        currentBrightness = firstAdjustment["brightness"].toInt(100);
+                    }
+                }
+            }
+        }
+    }
+
+    // Cập nhật trạng thái checked cho các action
+    for(QAction* action : _brightnessMenu->actions())
+    {
+        QString text = action->text();
+        text.remove("%");
+        int brightness = text.toInt();
+        action->setChecked(brightness == currentBrightness);
     }
 }
 
@@ -468,12 +613,12 @@ void SysTray::signalInstanceStateChangedHandler(InstanceState state, quint8 inst
 			}
 			break;
 		
-		// case InstanceState::STOP:
-        //     if (instance == _selectedInstance)
-        //     {
-        //         _selectedInstance = -1;
-        //     }
-        //     break;
+		case InstanceState::STOP:
+            if (instance == _selectedInstance)
+            {
+                _selectedInstance = -1;
+            }
+            break;
 
 		default:
 			break;

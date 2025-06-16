@@ -82,6 +82,8 @@ protected:
 	
 	bool startInstance(quint8 index, int tan = 0);
 	void stopInstance(quint8 index);
+	// bool addMusicDevice(const quint8 inst);
+    // bool removeMusicDevice(const quint8 inst);
 
 	//////////////////////////////////
 	/// AUTH / ADMINISTRATION METHODS

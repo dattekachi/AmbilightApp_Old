@@ -3,6 +3,8 @@ var finalLedArray = [];
 var conf_editor = null;
 var aceEdt = null;
 var ledStarter = false;
+var editor_brightness = null;
+var editor_backgroundEffect = null;
 
 function round(number)
 {
@@ -94,7 +96,8 @@ function createLedPreview(leds, origin)
 			"top:" + Math.round(led.vmin * canvas_height) + "px;" +
 			"width:" + Math.min((led.hmax - led.hmin) * canvas_width + 1, (canvas_width - 1)) + "px;" +
 			"height:" + Math.min((led.vmax - led.vmin) * canvas_height + 1, (canvas_height - 1)) + "px;";
-		leds_html += '<div id="' + led_id + '" group="'+led.group+'" class="led" style="background-color: ' + bgcolor + ';' + pos + '" title="' + idx + optGroup + '"><span id="' + led_id + '_num" class="led_prev_num">' + ((led.name) ? led.name : idx) + '</span></div>';
+		// leds_html += '<div id="' + led_id + '" group="'+led.group+'" class="led" style="background-color: ' + bgcolor + ';' + pos + '" title="' + idx + optGroup + '"><span id="' + led_id + '_num" class="led_prev_num">' + ((led.name) ? led.name : idx) + '</span></div>';
+		leds_html += '<div id="' + led_id + '" group="'+led.group+'" class="led" style="background-color: ' + bgcolor + ';' + pos + '" title="' + idx + optGroup + '"></div>';
 
 	}
 
@@ -129,8 +132,8 @@ function createLedPreview(leds, origin)
 			$('#ledc_'+i).addClass((i>=3) ? "crosslineDark" : "crosslineWhite");			
 		}
 
-	if ($('#leds_prev_toggle_num').hasClass('btn-success'))
-		$('.led_prev_num').css("display", "inline");
+	// if ($('#leds_prev_toggle_num').hasClass('btn-success'))
+	// 	$('.led_prev_num').css("display", "inline");
 
 	// update ace Editor content
 	aceEdt.set(finalLedArray);
@@ -564,11 +567,131 @@ $(document).ready(function()
 	if (window.showOptHelp)
 	{
 		createHintH("callout-info", $.i18n('conf_leds_device_intro'), "leddevice_intro");
-		createHintH("callout-info", $.i18n('conf_leds_layout_intro'), "layout_intro");
-		$('#led_vis_help').html('<div><div class="led_ex" style="background-color:black;margin-right:5px;margin-top:3px"></div><div style="display:inline-block;vertical-align:top">' + $.i18n('conf_leds_layout_preview_l1') + '</div></div><div class="led_ex" style="background-color:grey;margin-top:3px;margin-right:2px"></div><div class="led_ex" style="background-color: rgb(169, 169, 169);margin-right:5px;margin-top:3px;"></div><div style="display:inline-block;vertical-align:top">' + $.i18n('conf_leds_layout_preview_l2') + '</div>');
+		createHint("intro", $.i18n('conf_leds_device_brightness_intro'), "leddevice_brightness_intro");
+		createHint("intro", $.i18n('conf_effect_bgeff_intro'), "leddevice_backgroundEffect_intro");
+		createHint("intro", $.i18n('conf_effect_fgeff_intro'), "leddevice_foregroundEffect_intro");
+		// $('#led_vis_help').html('<div><div class="led_ex" style="background-color:rgb(92, 92, 92);margin-right:5px;margin-top:3px"></div><div style="display:inline-block;vertical-align:top">' + $.i18n('conf_leds_layout_preview_l1') + '</div></div><div class="led_ex" style="background-color:rgb(173, 173, 173);margin-top:3px;margin-right:2px"></div><div class="led_ex" style="background-color: rgb(199, 199, 199);margin-right:5px;margin-top:3px;"></div><div style="display:inline-block;vertical-align:top">' + $.i18n('conf_leds_layout_preview_l2') + '</div>');
 	}
 
-	var slConfig = window.serverConfig.ledConfig;	
+	//brightness
+	editor_brightness = createJsonEditor('editor_container_brightness', {
+		color: window.schema.color
+	}, true, true, undefined, true);
+
+	$("#editor_container_brightness .json-editor-btn-add").hide();
+	$("#editor_container_brightness [data-schemapath='root.color.imageToLedMappingType']").hide();
+	$("#editor_container_brightness [data-schemapath='root.color.sparse_processing']").hide();
+	$("#editor_container_brightness [data-schemapath='root.color.channelAdjustment'] .json-editor-btn-add").hide();
+	$("#editor_container_brightness [data-schemapath='root.color.channelAdjustment'] > h5 > label").hide();	
+	$("#editor_container_brightness [data-schemapath^='root.color.channelAdjustment']").each(function() {
+		const path = $(this).attr('data-schemapath');
+		if (path.includes('id') || 
+			path.includes('leds') || 
+			path.includes('classic_config') ||
+			path.includes('white') ||
+			path.includes('red') ||
+			path.includes('green') ||
+			path.includes('blue') ||
+			path.includes('cyan') ||
+			path.includes('magenta') ||
+			path.includes('yellow') ||
+			path.includes('gammaRed') ||
+			path.includes('gammaGreen') ||
+			path.includes('gammaBlue') ||
+			path.includes('temperatureRed') ||
+			path.includes('temperatureGreen') ||
+			path.includes('temperatureBlue') ||
+			path.includes('saturationGain') ||
+			path.includes('luminanceGain')) {
+			$(this).hide();
+		}
+	});
+
+	let lastBrightnessValue = JSON.stringify(editor_brightness.getValue());
+
+    editor_brightness.on('change', function() {
+        const currentValue = JSON.stringify(editor_brightness.getValue());
+        if (currentValue !== lastBrightnessValue) {
+            lastBrightnessValue = currentValue;
+            requestWriteConfig(editor_brightness.getValue());
+        }
+    });
+
+	//background effect
+	var newEffects = window.serverInfo.effects;
+	var _backgroundEffect = window.schema.backgroundEffect;
+
+	_backgroundEffect.properties.effect.enum = [];
+	_backgroundEffect.properties.effect.options.enum_titles = [];
+
+	for(var i = 0; i < newEffects.length; i++)
+	{
+		var effectName = newEffects[i].name.toString();
+		_backgroundEffect.properties.effect.enum.push(effectName);
+		_backgroundEffect.properties.effect.options.enum_titles.push(effectName);
+	}
+	
+	
+	editor_backgroundEffect = createJsonEditor('editor_container_backgroundEffect', {
+		backgroundEffect   : _backgroundEffect
+	}, true, true, undefined, true);
+
+	$("#editor_container_backgroundEffect [data-schemapath='root.backgroundEffect.enable']").hide();
+
+	let lastBackgroundEffectValue = JSON.stringify(editor_backgroundEffect.getValue());
+
+	editor_backgroundEffect.on('change', function() {
+		var value = editor_backgroundEffect.getValue();
+		var type = value.backgroundEffect.type;
+		var enable = value.backgroundEffect.enable;
+
+		if (type === "screen" && enable !== false) {
+			editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(false);
+			return;
+		}
+		if ((type === "color" || type === "effect") && enable !== true) {
+			editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(true);
+			return;
+		}
+
+		const currentValue = JSON.stringify(value);
+		if (currentValue !== lastBackgroundEffectValue) {
+			lastBackgroundEffectValue = currentValue;
+			requestWriteConfig(value);
+		}
+	});
+
+	//foreground effect
+	var newEffects = window.serverInfo.effects;
+	var _foregroundEffect = window.schema.foregroundEffect;
+	_foregroundEffect.properties.effect.enum = [];
+	_foregroundEffect.properties.effect.options.enum_titles = [];
+
+	for(var i = 0; i < newEffects.length; i++)
+	{
+		var effectName = newEffects[i].name.toString();
+		_foregroundEffect.properties.effect.enum.push(effectName);
+		_foregroundEffect.properties.effect.options.enum_titles.push(effectName);
+	}
+	
+	foregroundEffect_editor = createJsonEditor('editor_container_foregroundEffect', {
+		foregroundEffect   : _foregroundEffect
+	}, true, true, undefined, true);
+
+	foregroundEffect_editor.on('ready',function() {
+	});
+
+	let lastForegroundEffectValue = JSON.stringify(foregroundEffect_editor.getValue());
+
+	foregroundEffect_editor.on('change',function() {
+		const currentValue = JSON.stringify(foregroundEffect_editor.getValue());
+		if (currentValue !== lastForegroundEffectValue) {
+			lastForegroundEffectValue = currentValue;
+			requestWriteConfig(foregroundEffect_editor.getValue());
+		}
+	});
+
+	var slConfig = window.serverConfig.ledConfig;
 
 	//restore ledConfig - Classic
 	for (var key in slConfig.classic)
@@ -664,10 +787,10 @@ $(document).ready(function()
 		// Toggle panel và thay đổi style của nút
 		if (isVisible) {
 			$('#led_main_panel').hide();
-			$(this).removeClass('btn-warning').addClass('btn-primary');
+			$(this).removeClass('btn-primary').addClass('btn-danger');
 		} else {
 			$('#led_main_panel').show();
-			$(this).removeClass('btn-primary').addClass('btn-warning');
+			$(this).removeClass('btn-danger').addClass('btn-primary');
 		}
 	});
 
@@ -917,7 +1040,6 @@ $(document).ready(function()
 			specificOptions: specificOptions,
 		});
 
-		// Đặt 2 dòng code ẩn ở đây
 		$("div[data-schemapath='root.generalOptions.colorOrder']").hide();
 		$("div[data-schemapath='root.generalOptions.refreshTime']").hide();
 
@@ -1157,11 +1279,11 @@ $(document).ready(function()
 	});
 
 	// toggle led numbers
-	$('#leds_prev_toggle_num').off().on("click", function()
-	{
-		$('.led_prev_num').toggle();
-		toggleClass('#leds_prev_toggle_num', "btn-danger", "btn-success");
-	});
+	// $('#leds_prev_toggle_num').off().on("click", function()
+	// {
+	// 	$('.led_prev_num').toggle();
+	// 	toggleClass('#leds_prev_toggle_num', "btn-danger", "btn-success");
+	// });
 
 	// var _backupLastOrigin;
 
@@ -1557,7 +1679,35 @@ $(document).ready(function()
 		putInstanceName(document.getElementById('instTarget3'));
 	
 	putInstanceName(document.getElementById('instTarget2'));
+	putInstanceName(document.getElementById('instTarget4'));
+	putInstanceName(document.getElementById('instTarget5'));
 
 	$("#leddevices").trigger("change");
 	
+	// Cập nhật trạng thái thiết bị LED
+	function updateLedDeviceStatus() {
+		var components = window.comps;
+		var ledDevice = window.serverConfig.device;
+		
+		if (ledDevice && ledDevice.type) {
+			$("#led_device_name").text(ledDevice.type);
+			var ledEnabled = false;
+			for (var i = 0; i < components.length; i++) {
+				if (components[i].name === "LEDDEVICE") {
+					ledEnabled = components[i].enabled;
+					break;
+				}
+			}
+			
+			// Cập nhật icon trạng thái
+			var statusIcon = $("#led_device_status svg");
+			if (ledEnabled) {
+				statusIcon.attr("data-src", "svg/overview_component_on.svg");
+			} else {
+				statusIcon.attr("data-src", "svg/overview_component_off.svg");
+			}
+		}
+	}
+	updateLedDeviceStatus();
+	$(window.ambilightapp).on("components-updated", updateLedDeviceStatus);
 });

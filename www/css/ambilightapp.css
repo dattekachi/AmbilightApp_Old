@@ -1160,3 +1160,78 @@ body:not(.dark-mode) .nav-sidebar .nav-link.active {
   border-color: #2470a0 !important;
   color: #FFFFFF !important;
 }
+
+/* Style cho thanh trượt độ sáng */
+input[type="range"].form-control {
+    width: 200px;
+    background: transparent;
+    border: none;
+}
+
+input[type="range"].form-control:focus {
+    outline: none;
+}
+
+/* Style cho thumb (nút trượt) */
+input[type="range"].form-control::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #1d9ef0;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Style cho track (đường trượt) */
+input[type="range"].form-control::-webkit-slider-runnable-track {
+    height: 5px;
+    background: #dee2e6;
+    border-radius: 3px;
+}
+
+/* Style cho trạng thái disabled */
+input[type="range"].form-control:disabled::-webkit-slider-thumb {
+    background: #adb5bd;
+    cursor: not-allowed;
+}
+
+/* Dialog hướng dẫn - light mode */
+#firstOpenDialogCustom {
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #ccc;
+}
+#firstOpenDialogCustom p {
+  color: #222;
+}
+#firstOpenDialogCustom .btn-primary {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+/* Dialog hướng dẫn - dark mode */
+body.dark-mode #firstOpenDialogCustom {
+  background: #23272b;
+  color: #f1f1f1;
+  border: 1.5px solid #444;
+}
+body.dark-mode #firstOpenDialogCustom p {
+  color: #e0e0e0;
+}
+body.dark-mode #firstOpenDialogCustom .btn-primary {
+  background: #375a7f;
+  border-color: #375a7f;
+}
+body.dark-mode #firstOpenDialogCustom button {
+  color: #f1f1f1;
+}
+
+#firstOpenDialogCustom .tutorial-img-bg {
+  background: #ebebeb;
+}
+body.dark-mode #firstOpenDialogCustom .tutorial-img-bg {
+  background: #4f5863;
+}

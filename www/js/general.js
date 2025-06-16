@@ -4,55 +4,40 @@ $(document).ready(function()
 
 	var importedConf;
 	var confName;
-	// var conf_editor = null;
-	// var conf_editor_logs = null;
-
-	// $('#conf_cont_logs').append(createOptPanel('<svg data-src="svg/logs_panel.svg" width="18" height="18" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_log_heading_title"), 'logs_editor_container', 'btn_submit_logs'));
-	// $('#conf_cont_logs').append(createHelpTable(window.schema.logger.properties, $.i18n("edt_conf_log_heading_title")));
-	// $("#conf_cont_logs").children().first().removeClass();
-	// $("#conf_cont_logs").children().first().addClass("editor_column");
-
-	// conf_editor_logs = createJsonEditor('logs_editor_container', {
-	// 	logger : window.schema.logger
-	// }, true, true);
-
-	// conf_editor_logs.on('change',function() {
-	// 	conf_editor_logs.validate().length || window.readOnlyMode ? $('#btn_submit_logs').attr('disabled', true) : $('#btn_submit_logs').attr('disabled', false);
-	// });
-
-	// $('#btn_submit_logs').off().on('click',function() {
-	// 	requestWriteConfig(conf_editor_logs.getValue());
-	// });
-
+	var conf_editor = null;
 	
-	// $('#conf_cont').append(createOptPanel('<svg data-src="svg/general_settings.svg" fill="currentColor" class="svg4ambilightapp"></svg>', $.i18n("edt_conf_gen_heading_title"), 'editor_container', 'btn_submit'));
-	// $('#conf_cont').append(createHelpTable(window.schema.general.properties, $.i18n("edt_conf_gen_heading_title")));
-	
+	conf_editor = createJsonEditor('editor_container',
+	{
+		general: window.schema.general,
+	}, true, true);
 
-	// conf_editor = createJsonEditor('editor_container',
-	// {
-	// 	general: window.schema.general
-	// }, true, true);
+	conf_editor.on('change', function()
+	{
+		conf_editor.validate().length || window.readOnlyMode ? $('#btn_submit').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
+	});
 
-	// conf_editor.on('change', function()
-	// {
-	// 	conf_editor.validate().length || window.readOnlyMode ? $('#btn_submit').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
-	// });
+	$('#btn_submit').off().on('click', function()
+	{
+		requestWriteConfig(conf_editor.getValue());
+	});
 
-	// $('#btn_submit').off().on('click', function()
-	// {
-	// 	requestWriteConfig(conf_editor.getValue());
-	// });
+	$("#editor_container [data-schemapath^='root.general']").each(function() {
+		const path = $(this).attr('data-schemapath');
+		if (path.includes('disableOnLocked') ||
+			path.includes('disableLedsStartup')) {
+			$(this).hide();
+		}
+	});
 
 	// Instance handling
 	function handleInstanceRename(e)
 	{
 
-		// conf_editor.on('change', function()
-		// {
-		// 	window.readOnlyMode ? $('#btn_cl_save').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
-		// 	window.readOnlyMode ? $('#btn_ma_save').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
-		// });
+		conf_editor.on('change', function()
+		{
+			window.readOnlyMode ? $('#btn_cl_save').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
+			window.readOnlyMode ? $('#btn_ma_save').attr('disabled', true) : $('#btn_submit').attr('disabled', false);
+		});
 
 		var inst = e.currentTarget.id.split("_")[1];
 		showInfoDialog('renameInstance', $.i18n('conf_general_inst_renreq_t'), getInstanceNameByIndex(inst));
@@ -227,23 +212,23 @@ $(document).ready(function()
 			download(JSON.stringify(backup.info, null, "\t"), 'AmbilightApp-' + window.currentVersion + '-Backup-' + timestamp + '.json', "application/json");		
 	});
 
-	//create introduction
-	// if (window.showOptHelp)
-	// {
-	// 	createHint("intro", $.i18n('conf_general_intro'), "editor_container");
-	// 	createHint("intro", $.i18n('conf_general_tok_desc'), "tok_desc_cont");
-	// 	createHint("intro", $.i18n('conf_general_inst_desc'), "inst_desc_cont");
-	// }
+	// create introduction
+	if (window.showOptHelp)
+	{
+		createHint("intro", $.i18n('conf_general_intro'), "editor_container");
+		createHint("intro", $.i18n('conf_general_tok_desc'), "tok_desc_cont");
+		createHint("intro", $.i18n('conf_general_inst_desc'), "inst_desc_cont");
+	}
 
-	// if (window.serverInfo.grabbers != null && window.serverInfo.grabbers != undefined &&
-	// 	window.serverInfo.grabbers.active != null && window.serverInfo.grabbers.active != undefined)
-	// {
-	// 	var grabbers = window.serverInfo.grabbers.active;
-	// 	if (grabbers.indexOf('Media Foundation') < 0)
-	// 	{
-	// 		conf_editor.getEditor('root.general.disableOnLocked').disable();
-	// 	}
-	// }
+	if (window.serverInfo.grabbers != null && window.serverInfo.grabbers != undefined &&
+		window.serverInfo.grabbers.active != null && window.serverInfo.grabbers.active != undefined)
+	{
+		var grabbers = window.serverInfo.grabbers.active;
+		if (grabbers.indexOf('Media Foundation') < 0)
+		{
+			conf_editor.getEditor('root.general.disableOnLocked').disable();
+		}
+	}
 
 	removeOverlay();
 });

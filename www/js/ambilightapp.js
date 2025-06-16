@@ -2,7 +2,7 @@
 window.webPrio = 1;
 window.webOrigin = "Web Configuration";
 window.showOptHelp = true;
-window.gitHubReleaseApiUrl = "https://api.github.com/repos/awawa-dev/HyperHDR/releases";
+window.gitHubReleaseApiUrl = "https://api.github.com/repos/thesetupstore/ambilightapp-update/releases";
 window.currentChannel = null;
 window.currentVersion = null;
 window.latestVersion = null;

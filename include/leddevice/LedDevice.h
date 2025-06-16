@@ -51,6 +51,7 @@ public:
 	bool isReady() const;
 	bool isInError() const;
 	void setInstanceIndex(int instanceIndex);
+	int getInstanceIndex() const { return _instanceIndex; }
 
 	static void printLedValues(const std::vector<ColorRgb>& ledValues);
 	static void signalTerminateTriggered();

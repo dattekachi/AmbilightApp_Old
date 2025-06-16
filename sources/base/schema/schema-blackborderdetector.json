@@ -12,6 +12,18 @@
 			"required" : true,
 			"propertyOrder" : 1
 		},
+		"mode" :
+		{
+			"type" : "string",
+			"title": "edt_conf_bb_mode_title",
+			"enum" : ["default", "classic", "osd", "letterbox"],
+			"default" : "default",
+			"options" : {
+				"enum_titles" : ["edt_conf_enum_bbdefault", "edt_conf_enum_bbclassic", "edt_conf_enum_bbosd", "edt_conf_enum_bbletterbox"]
+			},
+			"required" : true,
+			"propertyOrder" : 2
+		},
 		"threshold" :
 		{
 			"type" : "integer",
@@ -23,7 +35,16 @@
 			"default" : 5,
 			"append" : "edt_append_percent",
 			"required" : true,
-			"propertyOrder" : 2
+			"propertyOrder" : 3
+		},
+		"advanced" :
+		{
+			"type" : "boolean",
+			"format": "checkbox",
+			"title" : "edt_conf_bb_advanced_title",
+			"default" : false,
+			"required" : true,
+			"propertyOrder" : 4
 		},
 		"unknownFrameCnt"    :
 		{
@@ -34,8 +55,13 @@
 			"minimum" : 0,
 			"default" : 600,
 			"access" : "expert",
+			"options" : {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 3
+			"propertyOrder" : 5
 		},
 		"borderFrameCnt" :
 		{
@@ -46,8 +72,13 @@
 			"minimum" : 0,
 			"default" : 50,
 			"access" : "expert",
+			"options" : {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 4
+			"propertyOrder" : 6
 		},
 		"maxInconsistentCnt" :
 		{
@@ -58,8 +89,13 @@
 			"minimum" : 0,
 			"default" : 10,
 			"access" : "expert",
+			"options" : {
+				"dependencies": {
+					"advanced": true
+				}
+			},
 			"required" : true,
-			"propertyOrder" : 5
+			"propertyOrder" : 7
 		},
 		"blurRemoveCnt" :
 		{
@@ -70,20 +106,13 @@
 			"minimum" : 0,
 			"default" : 1,
 			"access" : "expert",
-			"required" : true,
-			"propertyOrder" : 6
-		},
-		"mode" :
-		{
-			"type" : "string",
-			"title": "edt_conf_bb_mode_title",
-			"enum" : ["default", "classic", "osd", "letterbox"],
-			"default" : "default",
 			"options" : {
-				"enum_titles" : ["edt_conf_enum_bbdefault", "edt_conf_enum_bbclassic", "edt_conf_enum_bbosd", "edt_conf_enum_bbletterbox"]
+				"dependencies": {
+					"advanced": true
+				}
 			},
 			"required" : true,
-			"propertyOrder" : 7
+			"propertyOrder" : 8
 		}
 	},
 	"additionalProperties" : false

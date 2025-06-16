@@ -404,6 +404,16 @@ $(document).ready(function () {
 		document.getElementById('showMenuIcon').style.opacity = 1;
 		document.getElementById('hideMenuIcon').style.opacity = 0;
 	});
+
+	if (!localStorage.getItem('firstOpenDialogShownCustom')) {
+		setTimeout(function() {
+			$('#firstOpenDialogCustom').fadeIn(300);
+		}, 500);
+	}
+	$('#firstOpenDialogCustomOk, #firstOpenDialogCustomClose').on('click', function() {
+		localStorage.setItem('firstOpenDialogShownCustom', '1');
+		$('#firstOpenDialogCustom').fadeOut(200);
+	});
 });
 
 function suppressDefaultPwWarning()
@@ -474,19 +484,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Xóa active từ tất cả các items
     item.classList.remove('active');
     
-    // Thêm active cho item khớp với URL hiện tại
-    if (item.getAttribute('href') === currentHash) {
+    // Chỉ thêm active cho item có href khác "#" và khớp với URL hiện tại
+    const href = item.getAttribute('href');
+    if (href && href !== '#' && href === currentHash) {
       item.classList.add('active');
       localStorage.setItem('activeMenu', currentHash);
     }
     
     item.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      // Nếu là menu cha (href="#"), chỉ mở rộng menu, không active và không đổi hash
+      if (!href || href === '#') {
+        e.preventDefault();
+        return;
+      }
       e.preventDefault();
-      
       menuItems.forEach(i => i.classList.remove('active'));
       this.classList.add('active');
-      
-      const href = this.getAttribute('href');
       localStorage.setItem('activeMenu', href);
       window.location.hash = href;
     });

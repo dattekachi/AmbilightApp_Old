@@ -106,6 +106,7 @@ signals:
 
 private slots:
 	void handleInstanceJustStarted();
+	void handlePortChanged(const QString& instanceKey, const QString& newPort);
 
 private:
 	friend class AmbilightAppDaemon;
@@ -117,8 +118,8 @@ private:
 	void stopAllonExit();
 
 	bool isInstAllowed(quint8 inst) const { return (inst > 0); }
-	bool addMusicDevice(const quint8 inst);
-    bool removeMusicDevice(const quint8 inst);
+	bool syncMusicLedDevice(const quint8 inst);
+    bool removeMusicLedDevice(const quint8 inst);
 
 private:
 	
