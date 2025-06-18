@@ -10,6 +10,9 @@
 #include <QSystemTrayIcon>
 #include <QWidget>
 #include <utils/Components.h>
+#include <QMutex>
+#include <QMap>
+#include <QSettings>
 
 class AmbilightAppDaemon;
 class QMenu;
@@ -50,10 +53,9 @@ private slots:
 	void signalInstanceStateChangedHandler(InstanceState state, quint8 instance, const QString& name);
 	void signalSettingsChangedHandler(settings::type type, const QJsonDocument& data);
 
-    void updateBrightnessMenu();
-
 private:
 	void createTrayIcon();
+	void applySavedColorEffect(quint8 instance);
 
 #ifdef _WIN32
 	///
@@ -86,4 +88,15 @@ private:
 	quint16				_webPort;
 	int					_selectedInstance;
 	bool				currentState;
+
+	static QMutex s_colorAccessMutex;
+	static QMap<QString, QColor> s_lastSelectedColors;
+	static QSettings s_settings;
+
+	// Thêm biến cho effect
+	static QMutex s_effectAccessMutex;
+	static QMap<QString, QString> s_lastSelectedEffects;
+
+	void saveInstanceSetting(const QString& instanceKey, const QString& key, const QVariant& value, QMutex& mutex);
+	void removeInstanceSetting(const QString& instanceKey, const QString& key, QMutex& mutex);
 };

@@ -15,11 +15,11 @@
 		"type" :
 		{
 			"type" : "string",
-			"title" : "edt_conf_bge_heading_title",
-			"enum" : ["screen", "color", "effect"],
-			"default" : "screen",
+			"title" : "edt_conf_fge_type_title",
+			"enum" : ["color", "effect"],
+			"default" : "effect",
 			"options" : {
-				"enum_titles" : ["edt_conf_enum_screen", "edt_conf_enum_color", "edt_conf_enum_effect"]
+				"enum_titles" : ["edt_conf_enum_color", "edt_conf_enum_effect"]
 			},
 			"required" : true,
 			"propertyOrder" : 2

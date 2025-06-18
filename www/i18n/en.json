@@ -23,7 +23,7 @@
   "conf_colors_blackborder_intro": "Skip black bars wherever they are. Each mode use another detection algorithm which is tuned for special situations. Higher the threshold if it doesn't work for you.",
   "conf_colors_color_intro": "Create one or more calibration profiles, adjust each color, brightness, linearization and more.",
   "conf_colors_smoothing_intro": "Smoothing flattens color/brightness changes to reduce annoying distraction. <span style='color:red;'>Setting update frequency higher than the LED strip driver capabilities may cause delay and processing bottleneck.</span>",
-  "conf_effect_bgeff_intro": "The default mode of LED is \"Screen capture\", you can change to color/effect if you want.",
+  "conf_effect_bgeff_intro": "Define background effect/color. Always start with priority channel 255.",
   "conf_effect_fgeff_intro": "Define a boot-effect or color, which is shown during Ambilight App startup for the defined duration.",
   "conf_effect_path_intro": "Load effects from the defined paths. Additional you can disable single effects by name to hide them from all effect lists.",
   "conf_general_createInst_btn": "Create Instance",
@@ -206,7 +206,7 @@
   "edt_conf_bb_advanced_title": "Advanced",
   "edt_conf_bb_unknownFrameCnt_expl": "Number of frames without any detection before the border is set to 0.",
   "edt_conf_bb_unknownFrameCnt_title": "Unknown frames",
-  "edt_conf_bge_heading_title": "Default mode",
+  "edt_conf_bge_heading_title": "Background Effect/Color",
   "edt_conf_bobls_heading_title": "Boblight Server",
   "edt_conf_color_backlightColored_expl": "Add some color to your backlight.",
   "edt_conf_color_backlightColored_title": "Colored backlight",
@@ -267,7 +267,6 @@
   "edt_conf_enum_bgr": "BGR",
   "edt_conf_enum_bottom_up": "Bottom up",
   "edt_conf_enum_brg": "BRG",
-  "edt_conf_enum_screen": "Screen capture",
   "edt_conf_enum_color": "Color",
   "edt_conf_enum_custom": "Custom",
   "edt_conf_enum_decay": "Decay (don't use it)",
@@ -1257,5 +1256,6 @@
   "reverse_led_title": "Reverse LED direction",
   "modify_led_layout_title": "Modify LED layout",
   "edt_conf_smooth_advanced_title": "Advanced",
-  "general_comp_FLATBUFSERVER_plugin": "Capture plugin"
+  "general_comp_FLATBUFSERVER_plugin": "Capture plugin",
+  "current_mode_title": "Current mode"
 }

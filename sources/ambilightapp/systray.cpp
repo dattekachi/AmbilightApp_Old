@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QStringList>
 #include <QActionGroup>
+#include <QMutex>
 
 #include <AmbilightappConfig.h>
 
@@ -34,6 +35,12 @@
 
 #include "AmbilightAppDaemon.h"
 #include "systray.h"
+
+QMutex SysTray::s_colorAccessMutex;
+QMap<QString, QColor> SysTray::s_lastSelectedColors;
+QSettings SysTray::s_settings("HKEY_CURRENT_USER\\Software\\AmbilightApp", QSettings::NativeFormat);
+QMutex SysTray::s_effectAccessMutex;
+QMap<QString, QString> SysTray::s_lastSelectedEffects;
 
 SysTray::SysTray(AmbilightAppDaemon* ambilightappDaemon, quint16 webPort)
 	: QObject(),
@@ -47,22 +54,61 @@ SysTray::SysTray(AmbilightAppDaemon* ambilightappDaemon, quint16 webPort)
 	_runmusicledAction(nullptr),
 	_restartappAction(nullptr),
 	_autorunAction(nullptr),
+	_toggleLedAction(nullptr),
+	_brightnessMenu(nullptr),
 	_trayIcon(nullptr),
 	_trayIconMenu(nullptr),
 	_trayIconEfxMenu(nullptr),
 	_colorDlg(nullptr),
 	_selectedInstance(-1),
-	_webPort(webPort)
+	_webPort(webPort),
+	currentState(true)
 {
 	Q_INIT_RESOURCE(resources);
+
+	// Đọc màu đã lưu khi khởi tạo instance đầu tiên
+	static bool isFirstInstance = true;
+	if (isFirstInstance)
+	{
+		QMutexLocker locker(&s_colorAccessMutex);
+		s_settings.beginGroup("Instances");
+		QStringList instances = s_settings.childGroups();
+		for (const QString& instance : instances)
+		{
+			s_settings.beginGroup(instance);
+			QString colorStr = s_settings.value("Color").toString();
+			if (!colorStr.isEmpty())
+				s_lastSelectedColors[instance] = QColor(colorStr);
+			s_settings.endGroup();
+		}
+		s_settings.endGroup();
+		isFirstInstance = false;
+	}
+
+	// Đọc effect đã lưu khi khởi tạo instance đầu tiên
+	static bool isFirstEffectInstance = true;
+	if (isFirstEffectInstance)
+	{
+		QMutexLocker locker(&s_effectAccessMutex);
+		s_settings.beginGroup("Instances");
+		QStringList instances = s_settings.childGroups();
+		for (const QString& instance : instances)
+		{
+			s_settings.beginGroup(instance);
+			QString effectStr = s_settings.value("Effect").toString();
+			if (!effectStr.isEmpty())
+				s_lastSelectedEffects[instance] = effectStr;
+			s_settings.endGroup();
+		}
+		s_settings.endGroup();
+		isFirstEffectInstance = false;
+	}
 
 	std::shared_ptr<AmbilightAppManager> instanceManager;
 	ambilightappDaemon->getInstanceManager(instanceManager);
 	_instanceManager = instanceManager;
 	connect(instanceManager.get(), &AmbilightAppManager::SignalInstanceStateChanged, this, &SysTray::signalInstanceStateChangedHandler);
 	connect(instanceManager.get(), &AmbilightAppManager::SignalSettingsChanged, this, &SysTray::signalSettingsChangedHandler);
-	_toggleLedAction = nullptr;
-	currentState = true;
 }
 
 SysTray::~SysTray()
@@ -131,32 +177,38 @@ void SysTray::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void SysTray::createTrayIcon()
 {
-
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 
 #else
 	QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
+	if (_trayIconEfxMenu != nullptr) {
+		delete _trayIconEfxMenu;
+		_trayIconEfxMenu = nullptr;
+	}
+	if (_trayIconMenu != nullptr) {
+		delete _trayIconMenu;
+		_trayIconMenu = nullptr;
+	}
+	if (_brightnessMenu != nullptr) {
+		delete _brightnessMenu;
+		_brightnessMenu = nullptr;
+	}
+
 	_trayIconMenu = new QMenu();
-	_trayIcon = new QSystemTrayIcon();
-	_trayIcon->setContextMenu(_trayIconMenu);
 
-    // if (_trayIcon == nullptr)
-    // {
-    //     _trayIconMenu = new QMenu();
-    //     _trayIcon = new QSystemTrayIcon();
-    //     _trayIcon->setContextMenu(_trayIconMenu);
-    //     connect(_trayIcon, &QSystemTrayIcon::activated, this, &SysTray::iconActivated);
-    //     _trayIcon->setIcon(QIcon(":/ambilightapp-icon-32px.png"));
-    //     _trayIcon->show();
-    // }
-	// _trayIconMenu->clear();
+	if (_trayIcon == nullptr)
+	{
+		_trayIcon = new QSystemTrayIcon();
+		connect(_trayIcon, &QSystemTrayIcon::activated, this, &SysTray::iconActivated);
+		_trayIcon->setIcon(QIcon(":/ambilightapp-icon-32px.png"));
+		_trayIcon->show();
+	}
 
-	_brightnessMenu = new QMenu(tr("&Độ sáng LED"));
-	_brightnessMenu->setIcon(QPixmap(":/brightness.svg")); 
+	QString instanceKey = QString("Instance_%1").arg(_selectedInstance == -1 ? 0 : _selectedInstance);
 
-	// Lấy độ sáng hiện tại
+	// Menu độ sáng
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	int currentBrightness = 100;
 	if (instanceManager)
@@ -186,7 +238,9 @@ void SysTray::createTrayIcon()
 		}
 	}
 
-	// Tạo action group để chỉ có thể chọn một độ sáng
+	_brightnessMenu = new QMenu(tr("&Độ sáng:   %1%").arg(currentBrightness));
+	_brightnessMenu->setIcon(QPixmap(":/brightness.svg")); 
+
 	QActionGroup* brightnessGroup = new QActionGroup(this);
 	brightnessGroup->setExclusive(true);
 
@@ -200,103 +254,118 @@ void SysTray::createTrayIcon()
 		_brightnessMenu->addAction(brightnessAction);
 	}
 
-	// Kết nối signal aboutToShow để cập nhật menu
-	connect(_brightnessMenu, &QMenu::aboutToShow, this, &SysTray::updateBrightnessMenu);
-
+	// Menu thoát
 	_quitAction = new QAction(tr("&Thoát"));
 	_quitAction->setIcon(QPixmap(":/quit.svg"));
 	connect(_quitAction, &QAction::triggered, this, &SysTray::menuQuit);
 
-	_colorAction = new QAction(tr("&Chọn màu sắc"));
+	// Menu màu sắc
+	QColor currentColor = s_lastSelectedColors.value(instanceKey);
+	_colorAction = new QAction(tr("&Chế độ màu sắc%1").arg(currentColor.isValid() ? ":   " + currentColor.name() : ""));
 	_colorAction->setIcon(QPixmap(":/color.svg"));
 	connect(_colorAction, &QAction::triggered, this, &SysTray::showColorDialog);
 
+	// Menu cài đặt
 	_settingsAction = new QAction(tr("&Cài đặt"));
 	_settingsAction->setIcon(QPixmap(":/settings.svg"));
 	connect(_settingsAction, &QAction::triggered, this, &SysTray::settings);
 
+	// Menu plugin quét màu
 #ifdef _WIN32
-	_openscreencapAction = new QAction(tr("&Trình quét màu màn hình"));
+	_openscreencapAction = new QAction(tr("&Plugin quét màu"));
 	_openscreencapAction->setIcon(QPixmap(":/settings.svg"));
 	connect(_openscreencapAction, &QAction::triggered, this, &SysTray::openScreenCap);
 #endif
 
-	_clearAction = new QAction(tr("&Xóa màu sắc, hiệu ứng"));
+	// Menu chế độ theo màn hình
+	_clearAction = new QAction(tr("&Chế độ theo màn hình"));
 	_clearAction->setIcon(QPixmap(":/clear.svg"));
 	connect(_clearAction, &QAction::triggered, this, &SysTray::clearEfxColor);
 
-	_runmusicledAction = new QAction(tr("&Mở nháy theo nhạc"));
+	// Menu chế độ nháy theo nhạc
+	_runmusicledAction = new QAction(tr("&Chế độ nháy theo nhạc"));
 	_runmusicledAction->setIcon(QPixmap(":/music.svg"));
 	connect(_runmusicledAction, &QAction::triggered, this, &SysTray::runMusicLed);
 
+	// Menu khởi động lại
 	_restartappAction = new QAction(tr("&Khởi động lại"));
 	_restartappAction->setIcon(QPixmap(":/restart.svg"));
 	connect(_restartappAction, &QAction::triggered, this, &SysTray::restartApp);
 
+	// Menu bật/tắt LED
 	_toggleLedAction = new QAction(tr("&Tắt LED"));
     _toggleLedAction->setIcon(QPixmap(":/toggle.svg")); 
     connect(_toggleLedAction, &QAction::triggered, this, &SysTray::toggleLedState);
 
-    // QMenu* instancesMenu = new QMenu(tr("&Chọn thiết bị LED"), _trayIconMenu);
-    // instancesMenu->setIcon(QIcon(":/instance.svg")); 
+	// Menu chọn LED cần chỉnh
+    QMenu* instancesMenu = new QMenu(tr("&Chọn LED cần chỉnh"), _trayIconMenu);
+    instancesMenu->setIcon(QIcon(":/instance.svg")); 
 
-    // QActionGroup* instanceGroup = new QActionGroup(this);
-    // instanceGroup->setExclusive(true);
+    QActionGroup* instanceGroup = new QActionGroup(this);
+    instanceGroup->setExclusive(true);
 
-    // QAction* allAction = new QAction("Tất cả", instanceGroup);
-    // allAction->setCheckable(true);
-    // allAction->setChecked(_selectedInstance == -1);
-    // connect(allAction, &QAction::triggered, this, [this]() {
-    //     _selectedInstance = -1;
-    //     selectInstance();
-    // });
-    // instancesMenu->addAction(allAction);
+    QAction* allAction = new QAction("Tất cả", instanceGroup);
+    allAction->setCheckable(true);
+    allAction->setChecked(_selectedInstance == -1);
+    connect(allAction, &QAction::triggered, this, [this]() {
+        _selectedInstance = -1;
+        selectInstance();
+    });
+    instancesMenu->addAction(allAction);
     
-    // instancesMenu->addSeparator();
+    instancesMenu->addSeparator();
 
-    // std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
-    // if (instanceManager != nullptr)
-    // {
-    //     QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+    if (instanceManager != nullptr)
+    {
+        QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
         
-    //     for (const QVariantMap& instance : instanceData)
-    //     {
-    //         if (instance["enabled"].toBool())
-    //         {
-    //             int index = instance["instance"].toInt();
-    //             QString name = instance["friendly_name"].toString();
+        for (const QVariantMap& instance : instanceData)
+        {
+            if (instance["enabled"].toBool())
+            {
+                int index = instance["instance"].toInt();
+                QString name = instance["friendly_name"].toString();
                 
-    //             QAction* instanceAction = new QAction(name, instanceGroup);
-    //             instanceAction->setCheckable(true);
-    //             instanceAction->setChecked(index == _selectedInstance);
-    //             connect(instanceAction, &QAction::triggered, this, [this, index]() {
-    //                 _selectedInstance = index;
-    //                 selectInstance();
-    //             });
-    //             instancesMenu->addAction(instanceAction);
-    //         }
-    //     }
-    // }
+                QAction* instanceAction = new QAction(name, instanceGroup);
+                instanceAction->setCheckable(true);
+                instanceAction->setChecked(index == _selectedInstance);
+                connect(instanceAction, &QAction::triggered, this, [this, index]() {
+                    _selectedInstance = index;
+                    selectInstance();
+                });
+                instancesMenu->addAction(instanceAction);
+            }
+        }
+    }
 
+	// Menu chế độ hiệu ứng
 	std::list<EffectDefinition> efxs;
-
 	if (instanceManager)
 		efxs = instanceManager->getEffects();
 
-	_trayIconEfxMenu = new QMenu();
+	QString currentEffect = s_lastSelectedEffects.value(instanceKey);
+
+	_trayIconEfxMenu = new QMenu(tr("&Chế độ hiệu ứng%1").arg(currentEffect.isEmpty() ? "" : ":   " + currentEffect));
 	_trayIconEfxMenu->setIcon(QPixmap(":/effects.svg"));
-	_trayIconEfxMenu->setTitle(tr("Chọn hiệu ứng"));
+
+	QActionGroup* effectGroup = new QActionGroup(this);
+	effectGroup->setExclusive(true);
 
 	for (const EffectDefinition& efx : efxs)
 	{
 		QString effectName = efx.name;
-		QAction* efxAction = new QAction(effectName);
+		QAction* efxAction = new QAction(effectName, effectGroup);
+		efxAction->setCheckable(true);
+		efxAction->setChecked(effectName == currentEffect && !currentEffect.isEmpty());
 		connect(efxAction, &QAction::triggered, this, [this, effectName]() {
 			this->setEffect(effectName);
-			});
+		});
 		_trayIconEfxMenu->addAction(efxAction);
 	}
 
+	// Thêm các menu vào menu chính
+	_trayIconMenu->addMenu(instancesMenu);
+	_trayIconMenu->addSeparator();
 	_trayIconMenu->addAction(_colorAction);
 	_trayIconMenu->addMenu(_trayIconEfxMenu);
 	_trayIconMenu->addAction(_clearAction);
@@ -304,7 +373,6 @@ void SysTray::createTrayIcon()
 	_trayIconMenu->addSeparator();
 	_trayIconMenu->addMenu(_brightnessMenu);
 	_trayIconMenu->addAction(_toggleLedAction);
-	// _trayIconMenu->addMenu(instancesMenu);
 	_trayIconMenu->addSeparator();
 	_trayIconMenu->addAction(_settingsAction);
 #ifdef _WIN32
@@ -318,6 +386,8 @@ void SysTray::createTrayIcon()
 	_trayIconMenu->addSeparator();
 	_trayIconMenu->addAction(_restartappAction);
 	_trayIconMenu->addAction(_quitAction);
+
+	_trayIcon->setContextMenu(_trayIconMenu);
 }
 
 void SysTray::selectInstance()
@@ -357,7 +427,44 @@ void SysTray::setColor(const QColor& color)
 
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	if (instanceManager)
-		instanceManager->setInstanceColor(_selectedInstance, 1, rgbColor, 0);
+	{
+		if (_selectedInstance == -1) {
+			QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+			for (const QVariantMap& inst : instanceData) {
+				if (inst["running"].toBool()) {
+					int idx = inst["instance"].toInt();
+					instanceManager->setInstanceColor(idx, 1, rgbColor, 0);
+
+					QString instanceKey = QString("Instance_%1").arg(idx);
+					QString savedColor = s_lastSelectedColors.value(instanceKey).name();
+					QString newColor = color.name();
+					if (savedColor != newColor) {
+						s_lastSelectedColors[instanceKey] = color;
+						saveInstanceSetting(instanceKey, "Color", newColor, s_colorAccessMutex);
+						// Xóa key Effect nếu có
+						s_lastSelectedEffects.remove(instanceKey);
+						removeInstanceSetting(instanceKey, "Effect", s_effectAccessMutex);
+					}
+				}
+			}
+		} else {
+			instanceManager->setInstanceColor(_selectedInstance, 1, rgbColor, 0);
+
+			QString instanceKey = QString("Instance_%1").arg(_selectedInstance);
+			QString savedColor = s_lastSelectedColors.value(instanceKey).name();
+			QString newColor = color.name();
+			if (savedColor != newColor) {
+				s_lastSelectedColors[instanceKey] = color;
+				saveInstanceSetting(instanceKey, "Color", newColor, s_colorAccessMutex);
+				// Xóa key Effect nếu có
+				s_lastSelectedEffects.remove(instanceKey);
+				removeInstanceSetting(instanceKey, "Effect", s_effectAccessMutex);
+			}
+		}
+	}
+	// Cập nhật tiêu đề menu color
+	_colorAction->setText(tr("&Chế độ màu sắc:   %1").arg(color.name()));
+	createTrayIcon();
 }
 
 void SysTray::showColorDialog()
@@ -369,8 +476,8 @@ void SysTray::showColorDialog()
         #ifdef __APPLE__
             _colorDlg->setOption(QColorDialog::DontUseNativeDialog);
             _colorDlg->setOption(QColorDialog::ShowAlphaChannel, false);
-        #else
-            _colorDlg->setOptions(QColorDialog::NoButtons);
+        // #else
+        //     _colorDlg->setOptions(QColorDialog::NoButtons);
         #endif
         
         connect(_colorDlg, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(setColor(const QColor&)));
@@ -431,7 +538,42 @@ void SysTray::setEffect(QString effect)
 {
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	if (instanceManager)
-		instanceManager->setInstanceEffect(_selectedInstance, effect, 1);
+	{
+		if (_selectedInstance == -1) {
+			QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+			for (const QVariantMap& inst : instanceData) {
+				if (inst["running"].toBool()) {
+					int idx = inst["instance"].toInt();
+					instanceManager->setInstanceEffect(idx, effect, 1);
+
+					QString instanceKey = QString("Instance_%1").arg(idx);
+					QString savedEffect = s_lastSelectedEffects.value(instanceKey);
+					if (savedEffect != effect) {
+						s_lastSelectedEffects[instanceKey] = effect;
+						saveInstanceSetting(instanceKey, "Effect", effect, s_effectAccessMutex);
+						// Xóa key Color nếu có
+						s_lastSelectedColors.remove(instanceKey);
+						removeInstanceSetting(instanceKey, "Color", s_colorAccessMutex);
+					}
+				}
+			}
+		} else {
+			instanceManager->setInstanceEffect(_selectedInstance, effect, 1);
+
+			QString instanceKey = QString("Instance_%1").arg(_selectedInstance);
+			QString savedEffect = s_lastSelectedEffects.value(instanceKey);
+			if (savedEffect != effect) {
+				s_lastSelectedEffects[instanceKey] = effect;
+				saveInstanceSetting(instanceKey, "Effect", effect, s_effectAccessMutex);
+				// Xóa key Color nếu có
+				s_lastSelectedColors.remove(instanceKey);
+				removeInstanceSetting(instanceKey, "Color", s_colorAccessMutex);
+			}
+		}
+	}
+	// Cập nhật tiêu đề menu effect
+	_trayIconEfxMenu->setTitle(tr("&Chế độ hiệu ứng: %1").arg(effect));
+	createTrayIcon();
 }
 
 void SysTray::clearEfxColor()
@@ -439,6 +581,27 @@ void SysTray::clearEfxColor()
 	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
 	if (instanceManager)
 		instanceManager->clearInstancePriority(_selectedInstance, 1);
+
+	if (_selectedInstance == -1 && instanceManager) {
+		QVector<QVariantMap> instanceData = instanceManager->getInstanceData();
+		for (const QVariantMap& inst : instanceData) {
+			if (inst["running"].toBool()) {
+				int idx = inst["instance"].toInt();
+				QString instanceKey = QString("Instance_%1").arg(idx);
+				s_lastSelectedColors.remove(instanceKey);
+				s_lastSelectedEffects.remove(instanceKey);
+				removeInstanceSetting(instanceKey, "Color", s_colorAccessMutex);
+				removeInstanceSetting(instanceKey, "Effect", s_effectAccessMutex);
+			}
+		}
+	} else {
+		QString instanceKey = QString("Instance_%1").arg(_selectedInstance == -1 ? 0 : _selectedInstance);
+		s_lastSelectedColors.remove(instanceKey);
+		s_lastSelectedEffects.remove(instanceKey);
+		removeInstanceSetting(instanceKey, "Color", s_colorAccessMutex);
+		removeInstanceSetting(instanceKey, "Effect", s_effectAccessMutex);
+	}
+	createTrayIcon();
 }
 
 void SysTray::openScreenCap()
@@ -530,48 +693,7 @@ void SysTray::setBrightness(int brightness)
             }
         }
     }
-}
-
-void SysTray::updateBrightnessMenu()
-{
-    // Lấy độ sáng hiện tại
-    std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
-    int currentBrightness = 100;
-    if (instanceManager)
-    {
-        int instanceIndex = _selectedInstance;
-        if (instanceIndex == -1)
-            instanceIndex = 0;
-			
-        auto instance = instanceManager->getAmbilightAppInstance(instanceIndex);
-        if (instance)
-        {
-            QJsonDocument configDoc = instance->getSetting(settings::type::COLOR);
-            QJsonObject config = configDoc.object();
-            
-            if (config.contains("channelAdjustment"))
-            {
-                QJsonArray adjustments = config["channelAdjustment"].toArray();
-                if (!adjustments.isEmpty())
-                {
-                    QJsonObject firstAdjustment = adjustments[0].toObject();
-                    if (firstAdjustment.contains("brightness"))
-                    {
-                        currentBrightness = firstAdjustment["brightness"].toInt(100);
-                    }
-                }
-            }
-        }
-    }
-
-    // Cập nhật trạng thái checked cho các action
-    for(QAction* action : _brightnessMenu->actions())
-    {
-        QString text = action->text();
-        text.remove("%");
-        int brightness = text.toInt();
-        action->setChecked(brightness == currentBrightness);
-    }
+	createTrayIcon();
 }
 
 void SysTray::toggleLedState()
@@ -605,12 +727,11 @@ void SysTray::signalInstanceStateChangedHandler(InstanceState state, quint8 inst
 					return;
 
 				createTrayIcon();
-
-				connect(_trayIcon, &QSystemTrayIcon::activated, this, &SysTray::iconActivated);				
-
 				_trayIcon->setIcon(QIcon(":/ambilightapp-icon-32px.png"));
 				_trayIcon->show();		
 			}
+			// Áp dụng color/effect khi instance được khởi động
+			applySavedColorEffect(instance);
 			break;
 		
 		case InstanceState::STOP:
@@ -623,7 +744,30 @@ void SysTray::signalInstanceStateChangedHandler(InstanceState state, quint8 inst
 		default:
 			break;
 	}
-	// createTrayIcon();
+	createTrayIcon();
+}
+
+void SysTray::applySavedColorEffect(quint8 instance)
+{
+	std::shared_ptr<AmbilightAppManager> instanceManager = _instanceManager.lock();
+	if (!instanceManager)
+		return;
+
+	QString instanceKey = QString("Instance_%1").arg(instance);
+	
+	// Áp dụng color nếu có
+	if (s_lastSelectedColors.contains(instanceKey))
+	{
+		QColor color = s_lastSelectedColors[instanceKey];
+		ColorRgb rgbColor{ (uint8_t)color.red(), (uint8_t)color.green(), (uint8_t)color.blue() };
+		instanceManager->setInstanceColor(instance, 1, rgbColor, 0);
+	}
+	// Áp dụng effect nếu có
+	else if (s_lastSelectedEffects.contains(instanceKey))
+	{
+		QString effect = s_lastSelectedEffects[instanceKey];
+		instanceManager->setInstanceEffect(instance, effect, 1);
+	}
 }
 
 void SysTray::signalSettingsChangedHandler(settings::type type, const QJsonDocument& data)
@@ -632,4 +776,55 @@ void SysTray::signalSettingsChangedHandler(settings::type type, const QJsonDocum
 	{
 		_webPort = data.object()["port"].toInt();
 	}
+	else if (type == settings::type::COLOR)
+	{
+		// Cập nhật menu độ sáng khi cấu hình màu thay đổi
+		QJsonObject config = data.object();
+		if (config.contains("channelAdjustment"))
+		{
+			QJsonArray adjustments = config["channelAdjustment"].toArray();
+			if (!adjustments.isEmpty())
+			{
+				QJsonObject firstAdjustment = adjustments[0].toObject();
+				if (firstAdjustment.contains("brightness"))
+				{
+					int brightness = firstAdjustment["brightness"].toInt(100);
+					if (_brightnessMenu != nullptr)
+					{
+						_brightnessMenu->setTitle(tr("&Độ sáng:   %1%").arg(brightness));
+						// Cập nhật trạng thái checked cho các action
+						for(QAction* action : _brightnessMenu->actions())
+						{
+							QString text = action->text();
+							text.remove("%");
+							int actionBrightness = text.toInt();
+							action->setChecked(actionBrightness == brightness);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void SysTray::saveInstanceSetting(const QString& instanceKey, const QString& key, const QVariant& value, QMutex& mutex)
+{
+	QMutexLocker locker(&mutex);
+	s_settings.beginGroup("Instances");
+	s_settings.beginGroup(instanceKey);
+	s_settings.setValue(key, value);
+	s_settings.endGroup();
+	s_settings.endGroup();
+	s_settings.sync();
+}
+
+void SysTray::removeInstanceSetting(const QString& instanceKey, const QString& key, QMutex& mutex)
+{
+	QMutexLocker locker(&mutex);
+	s_settings.beginGroup("Instances");
+	s_settings.beginGroup(instanceKey);
+	s_settings.remove(key);
+	s_settings.endGroup();
+	s_settings.endGroup();
+	s_settings.sync();
 }

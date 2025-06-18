@@ -4,7 +4,8 @@ var conf_editor = null;
 var aceEdt = null;
 var ledStarter = false;
 var editor_brightness = null;
-var editor_backgroundEffect = null;
+var foregroundEffect_editor = null;
+// var editor_backgroundEffect = null;
 
 function round(number)
 {
@@ -618,48 +619,48 @@ $(document).ready(function()
     });
 
 	//background effect
-	var newEffects = window.serverInfo.effects;
-	var _backgroundEffect = window.schema.backgroundEffect;
+	// var newEffects = window.serverInfo.effects;
+	// var _backgroundEffect = window.schema.backgroundEffect;
 
-	_backgroundEffect.properties.effect.enum = [];
-	_backgroundEffect.properties.effect.options.enum_titles = [];
+	// _backgroundEffect.properties.effect.enum = [];
+	// _backgroundEffect.properties.effect.options.enum_titles = [];
 
-	for(var i = 0; i < newEffects.length; i++)
-	{
-		var effectName = newEffects[i].name.toString();
-		_backgroundEffect.properties.effect.enum.push(effectName);
-		_backgroundEffect.properties.effect.options.enum_titles.push(effectName);
-	}
+	// for(var i = 0; i < newEffects.length; i++)
+	// {
+	// 	var effectName = newEffects[i].name.toString();
+	// 	_backgroundEffect.properties.effect.enum.push(effectName);
+	// 	_backgroundEffect.properties.effect.options.enum_titles.push(effectName);
+	// }
 	
 	
-	editor_backgroundEffect = createJsonEditor('editor_container_backgroundEffect', {
-		backgroundEffect   : _backgroundEffect
-	}, true, true, undefined, true);
+	// editor_backgroundEffect = createJsonEditor('editor_container_backgroundEffect', {
+	// 	backgroundEffect   : _backgroundEffect
+	// }, true, true, undefined, true);
 
-	$("#editor_container_backgroundEffect [data-schemapath='root.backgroundEffect.enable']").hide();
+	// $("#editor_container_backgroundEffect [data-schemapath='root.backgroundEffect.enable']").hide();
 
-	let lastBackgroundEffectValue = JSON.stringify(editor_backgroundEffect.getValue());
+	// let lastBackgroundEffectValue = JSON.stringify(editor_backgroundEffect.getValue());
 
-	editor_backgroundEffect.on('change', function() {
-		var value = editor_backgroundEffect.getValue();
-		var type = value.backgroundEffect.type;
-		var enable = value.backgroundEffect.enable;
+	// editor_backgroundEffect.on('change', function() {
+	// 	var value = editor_backgroundEffect.getValue();
+	// 	var type = value.backgroundEffect.type;
+	// 	var enable = value.backgroundEffect.enable;
 
-		if (type === "screen" && enable !== false) {
-			editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(false);
-			return;
-		}
-		if ((type === "color" || type === "effect") && enable !== true) {
-			editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(true);
-			return;
-		}
+	// 	if (type === "screen" && enable !== false) {
+	// 		editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(false);
+	// 		return;
+	// 	}
+	// 	if ((type === "color" || type === "effect") && enable !== true) {
+	// 		editor_backgroundEffect.getEditor("root.backgroundEffect.enable").setValue(true);
+	// 		return;
+	// 	}
 
-		const currentValue = JSON.stringify(value);
-		if (currentValue !== lastBackgroundEffectValue) {
-			lastBackgroundEffectValue = currentValue;
-			requestWriteConfig(value);
-		}
-	});
+	// 	const currentValue = JSON.stringify(value);
+	// 	if (currentValue !== lastBackgroundEffectValue) {
+	// 		lastBackgroundEffectValue = currentValue;
+	// 		requestWriteConfig(value);
+	// 	}
+	// });
 
 	//foreground effect
 	var newEffects = window.serverInfo.effects;
@@ -1710,4 +1711,45 @@ $(document).ready(function()
 	}
 	updateLedDeviceStatus();
 	$(window.ambilightapp).on("components-updated", updateLedDeviceStatus);
+
+	// Current mode
+	function updateCurrentMode() {
+		const modeText = document.getElementById('current_mode_text');
+		if (!modeText) return;
+
+		let currentMode = 'Theo màu màn hình';
+		
+		// Kiểm tra priorities để xác định chế độ hiện tại
+		if (window.serverInfo && window.serverInfo.priorities) {
+			for (let i = 0; i < window.serverInfo.priorities.length; i++) {
+				const priority = window.serverInfo.priorities[i];
+				if (priority.active) {
+					if (priority.componentId === "EFFECT") {
+						currentMode = `Hiệu ứng - ${priority.owner}`;
+						break;
+					} else if (priority.componentId === "COLOR") {
+						currentMode = `Màu sắc - ${priority.value}`;
+						break;
+					}
+				}
+			}
+		}
+		
+		modeText.textContent = currentMode;
+	}
+
+	// Cập nhật khi có thay đổi từ server
+	$(window.ambilightapp).on("instance-update", function(data) {
+		updateCurrentMode();
+	});
+
+	// Cập nhật khi priorities thay đổi
+	$(window.ambilightapp).on("priorities-update", function(data) {
+		updateCurrentMode();
+	});
+
+	// Cập nhật lần đầu khi trang được tải
+	$(document).ready(function() {
+		updateCurrentMode();
+	});
 });

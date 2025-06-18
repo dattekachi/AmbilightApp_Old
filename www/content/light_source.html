@@ -17,7 +17,25 @@
 				</div>
 
 				<div class="card-body">
+					<div id="btn_wiz_holder"></div>
+					<div id="ledDeviceOptions">
+					<div id="editor_container"></div>
+					</div>
+
 					<div class="row form-group mb-3">
+						<div class="col-4 col-form-label">
+							<label class="ltdlabel" for="reverseLed" data-i18n="reverse_led_title">Đảo ngược hướng LED</label>
+						</div>
+						<div class="col-8">
+							<div class="input-group">
+								<input class="ledCLconstr form-check-input" id="reverseLed" type="checkbox" value="false" />														
+							</div>
+						</div>
+					</div>
+
+					<hr>
+
+					<div class="row form-group mb-2">
 						<div class="col-4 col-form-label">
 							<label class="ltdlabel" data-i18n="status_device_title">Trạng thái thiết bị</label>
 						</div>
@@ -29,21 +47,20 @@
 							</div>
 						</div>
 					</div>
-					<div id="btn_wiz_holder"></div>
-					<div id="ledDeviceOptions">
-					<div id="editor_container"></div>
-					</div>
+
 					<div class="row form-group mb-3">
 						<div class="col-4 col-form-label">
-							<label class="ltdlabel" for="reverseLed" data-i18n="reverse_led_title">Đảo ngược hướng LED</label>
+							<label class="ltdlabel" data-i18n="current_mode_title">Chế độ hiện tại</label>
 						</div>
 						<div class="col-8">
 							<div class="input-group">
-								<input class="ledCLconstr form-check-input" id="reverseLed" type="checkbox" value="false" />														
+								<span id="current_mode_status" class="form-control-plaintext">
+									<span class="ltdlabel" id="current_mode_text">Theo màu màn hình</span>
+								</span>
 							</div>
 						</div>
 					</div>
-					<div id="editor_container_backgroundEffect"></div>
+
 				</div>
 				<div class="card-footer" style="text-align: right;">
 					<button id="btn_submit_controller" class="btn btn-primary"><svg data-src="svg/button_save.svg" fill="currentColor" class="svg4ambilightapp"></svg><span data-i18n="general_button_savesettings">Save Settings</span></button>

@@ -205,7 +205,7 @@
 						"required" : true,
 						"minimum" : 0.1,
 						"maximum": 100.0,
-						"default" : 3,						
+						"default" : 2.2,						
 						"propertyOrder" : 11
 					},
 					"gammaGreen" :
@@ -217,7 +217,7 @@
 						"required" : true,
 						"minimum" : 0.1,
 						"maximum": 100.0,
-						"default" : 3,
+						"default" : 2.2,
 						"propertyOrder" : 12
 					},
 					"gammaBlue" :
@@ -229,7 +229,7 @@
 						"required" : true,
 						"minimum" : 0.1,
 						"maximum": 100.0,
-						"default" : 3,
+						"default" : 2.2,
 						"propertyOrder" : 13
 					},
 					"temperatureRed" :
