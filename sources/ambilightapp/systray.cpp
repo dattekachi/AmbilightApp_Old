@@ -238,7 +238,7 @@ void SysTray::createTrayIcon()
 		}
 	}
 
-	_brightnessMenu = new QMenu(tr("&Độ sáng:   %1%").arg(currentBrightness));
+	_brightnessMenu = new QMenu(tr("&Độ sáng LED:   %1%").arg(currentBrightness));
 	_brightnessMenu->setIcon(QPixmap(":/brightness.svg")); 
 
 	QActionGroup* brightnessGroup = new QActionGroup(this);
@@ -259,9 +259,9 @@ void SysTray::createTrayIcon()
 	_quitAction->setIcon(QPixmap(":/quit.svg"));
 	connect(_quitAction, &QAction::triggered, this, &SysTray::menuQuit);
 
-	// Menu màu sắc
+	// Menu chọn màu sắc
 	QColor currentColor = s_lastSelectedColors.value(instanceKey);
-	_colorAction = new QAction(tr("&Chế độ màu sắc%1").arg(currentColor.isValid() ? ":   " + currentColor.name() : ""));
+	_colorAction = new QAction(tr("&Chọn màu sắc%1").arg(currentColor.isValid() ? ":   " + currentColor.name() : ""));
 	_colorAction->setIcon(QPixmap(":/color.svg"));
 	connect(_colorAction, &QAction::triggered, this, &SysTray::showColorDialog);
 
@@ -338,14 +338,14 @@ void SysTray::createTrayIcon()
         }
     }
 
-	// Menu chế độ hiệu ứng
+	// Menu chọn hiệu ứng
 	std::list<EffectDefinition> efxs;
 	if (instanceManager)
 		efxs = instanceManager->getEffects();
 
 	QString currentEffect = s_lastSelectedEffects.value(instanceKey);
 
-	_trayIconEfxMenu = new QMenu(tr("&Chế độ hiệu ứng%1").arg(currentEffect.isEmpty() ? "" : ":   " + currentEffect));
+	_trayIconEfxMenu = new QMenu(tr("&Chọn hiệu ứng%1").arg(currentEffect.isEmpty() ? "" : ":   " + currentEffect));
 	_trayIconEfxMenu->setIcon(QPixmap(":/effects.svg"));
 
 	QActionGroup* effectGroup = new QActionGroup(this);
@@ -463,7 +463,7 @@ void SysTray::setColor(const QColor& color)
 		}
 	}
 	// Cập nhật tiêu đề menu color
-	_colorAction->setText(tr("&Chế độ màu sắc:   %1").arg(color.name()));
+	_colorAction->setText(tr("&Chọn màu sắc:   %1").arg(color.name()));
 	createTrayIcon();
 }
 
@@ -572,7 +572,7 @@ void SysTray::setEffect(QString effect)
 		}
 	}
 	// Cập nhật tiêu đề menu effect
-	_trayIconEfxMenu->setTitle(tr("&Chế độ hiệu ứng: %1").arg(effect));
+	_trayIconEfxMenu->setTitle(tr("&Chọn hiệu ứng: %1").arg(effect));
 	createTrayIcon();
 }
 
@@ -791,7 +791,7 @@ void SysTray::signalSettingsChangedHandler(settings::type type, const QJsonDocum
 					int brightness = firstAdjustment["brightness"].toInt(100);
 					if (_brightnessMenu != nullptr)
 					{
-						_brightnessMenu->setTitle(tr("&Độ sáng:   %1%").arg(brightness));
+						_brightnessMenu->setTitle(tr("&Độ sáng LED:   %1%").arg(brightness));
 						// Cập nhật trạng thái checked cho các action
 						for(QAction* action : _brightnessMenu->actions())
 						{
